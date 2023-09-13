@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- Booking Form Section -->
+<section class="booking-form-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="booking-form-wrapper">
+                    <h2>Book an Appointment</h2>
+                    {% if messages %}
+<div class="alert alert-danger">
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+                  <!-- appointment_form.html -->
+
+                  <form method="post">
+                    {% csrf_token %}
+                    {{form.as_p}}
+                    {% comment %} <fieldset>
+                        <legend>Your Information</legend>
+                        <div class="mb-3">
+                            {{ form.user_name.label_tag }}
+                            {{ form.user_name }}
+                            
+                        </div>
+                        <!-- Add other user details input fields here -->
+                    </fieldset>
+                
+                    <fieldset>
+                        <legend>Vehicle Details</legend>
+                        <div class="mb-3">
+                            {{ form.vehicle_model.label_tag }}
+                            {{ form.vehicle_model }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.build_year.label_tag }}
+                            {{ form.build_year }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.engine_number.label_tag }}
+                            {{ form.engine_number }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.chassis_number.label_tag }}
+                            {{ form.chassis_number }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.registration_number.label_tag }}
+                            {{ form.registration_number }}
+                        </div>
+                    </fieldset>
+                
+                    <fieldset>
+                        <legend>Appointment Details</legend>
+                        <div class="mb-3">
+                            {{ form.service_date.label_tag }}
+                            {{ form.service_date }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.service_time.label_tag }}
+                            {{ form.service_time }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.service_type.label_tag }}
+                            {{ form.service_type }}
+                        </div>
+                 
+                    </fieldset> {% endcomment %}
+                
+                    <button type="submit" class="btn btn-primary">Book Service</button>
+                </form>           
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</section>
+{% endblock %}

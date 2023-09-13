@@ -1,0 +1,313 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+   <head>
+      <meta charset="utf-8">
+      <title>Transparent Login Form HTML CSS</title>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+      <style>
+         @import url('https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700|Poppins:400,500&display=swap');
+         *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+         }
+         .bg-img{
+            background: url('{% static 'images/bg1.jpg' %}');
+            height: 100vh;
+            background-size: cover;
+            background-position: center;
+         }
+         .bg-img:after{
+            position: absolute;
+            content: '';
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            background: rgba(0,0,0,0.7);
+         }
+         .content{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            z-index: 999;
+            text-align: center;
+            padding: 60px 32px;
+            width: 370px;
+            transform: translate(-50%,-50%);
+            background: rgba(255,255,255,0.04);
+            box-shadow: -1px 4px 28px 0px rgba(0,0,0,0.75);
+         }
+         .content header{
+            color: white;
+            font-size: 33px;
+            font-weight: 600;
+            margin: 0 0 35px 0;
+            font-family: 'Montserrat',sans-serif;
+         }
+         .field{
+            position: relative;
+            height: 45px;
+            width: 100%;
+            display: flex;
+            background: rgba(183, 177, 177, 0.94);
+         }
+         .field span{
+            color: #222;
+            width: 40px;
+            line-height: 45px;
+         }
+         .field input{
+            height: 100%;
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #222;
+            font-size: 16px;
+            font-family: 'Knewave',sans-serif;
+         }
+         .space{
+            margin-top: 16px;
+         }
+         .show{
+            position: absolute;
+            right: 13px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #222;
+            display: none;
+            cursor: pointer;
+            font-family: 'Montserrat',sans-serif;
+         }
+         .pass-key:valid ~ .show{
+            display: block;
+         }
+         .pass{
+            text-align: left;
+            margin: 10px 0;
+         }
+         .pass a{
+            color: white;
+            text-decoration: none;
+            font-family: 'Poppins',sans-serif;
+         }
+         .pass:hover a{
+            text-decoration: underline;
+         }
+         .field input[type="submit"]{
+            background: #3498db;
+            border: 1px solid #2691d9;
+            color: white;
+            font-size: 18px;
+            letter-spacing: 1px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Montserrat',sans-serif;  
+         }
+         .field input[type="submit"]:hover{
+            background: #2691d9;
+         }
+         .login{
+            color: white;
+            margin: 20px 0;
+            font-family: 'Poppins',sans-serif;
+         }
+         .links{
+            display: flex;
+            cursor: pointer;
+            color: white;
+            margin: 0 0 20px 0;
+            margin-left: 20px;
+         }
+         .Whatsapp,.google{
+            width: 100%;
+            height: 45px;
+            line-height: 45px;
+            margin-right: 20px;
+         }
+         .Whatsapp{
+            margin-left: 0;
+            background: #25d366;
+            border: 1px solid #128C7E;
+         }
+         {% comment %} .google{
+            background: #E1306C;
+            border: 1px solid #df2060;
+         }
+         .Whatsapp:hover{
+            background: #128C7E;
+         }
+         .google:hover{
+            background: #df2060;
+         } {% endcomment %}
+         .links i{
+            font-size: 17px;
+         }
+         i span{
+            margin-left: 8px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            font-size: 16px;
+            font-family: 'Poppins',sans-serif;
+         }
+         .signup{
+            font-size: 15px;
+            color: white;
+            font-family: 'Poppins',sans-serif;
+         }
+         .signup a{
+            color: #3498db;
+            text-decoration: none;
+         }
+         .signup a:hover{
+            text-decoration: underline;
+         }
+
+         /* Styling for alert messages */
+         .messages {
+             position: fixed;
+             top: 10px;
+             right: 10px;
+             width: 300px;
+             z-index: 1000;
+         }
+ 
+         .alert {
+             padding: 10px;
+             margin-bottom: 10px;
+             border: 1px solid transparent;
+             border-radius: 4px;
+         }
+ 
+         .alert-danger {
+             color: #721c24;
+             background-color: #f8d7da;
+             border-color: #f5c6cb;
+         }
+ 
+         .alert-success {
+             color: #155724;
+             background-color: #d4edda;
+             border-color: #c3e6cb;
+         }
+ 
+         .alert-info {
+             color: #004085;
+             background-color: #cce5ff;
+             border-color: #b8daff;
+         }
+
+
+         .google-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #E1306C;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px;
+            text-decoration: none;
+            border-radius: 4px;
+            width: 100%;
+            height: 45px;
+            margin-left: 0px;
+            margin-right: 100px;
+            outline: none;
+        }
+
+        .google-button i {
+         margin-right: 10px; 
+     }
+        
+        .google-button a {
+            color: white;
+            text-decoration: none;
+        }
+        
+        .google-button:hover {
+            background-color: #df2060;
+        }
+     
+        
+        
+      </style>
+   </head>
+   <body>
+      <div class="bg-img">
+         <div class="content">
+            <header>VehiCare Hub</header>
+            <form method="POST">
+               {% csrf_token %}
+               <div class="field">
+                  <span class="fa fa-user"></span>
+                  <input type="text" required placeholder="Email or Username" name="EU">
+               </div>
+               <div class="field space">
+                  <span class="fa fa-lock"></span>
+                  <input type="password" class="pass-key" required placeholder="Password" name="pwd">
+                  <span class="show">SHOW</span>
+               </div>
+               <div class="pass">
+                  <a href="{% url 'password_reset' %}">Forgot Password?</a>
+               </div>
+               <div class="field">
+                  <input type="submit" value="Sign in">
+               </div>
+            </form>
+            <div class="login">
+               Or login with
+            </div>
+            <div class="links">
+               {% comment %} <div class="Whatsapp">
+                  <i class="fab fa-whatsapp"><span>WhatsApp</span></i>
+               </div> {% endcomment %}
+               {% load socialaccount %}
+               <div class="links">
+                  <div class="google">
+                      <button type="button" class="google-button">
+                          <i class="fab fa-google"></i>
+                          <a href="{% provider_login_url 'google'%}">Google</a>
+                      </button>
+                      <div class="signup">
+                        <p style="font-family: 'Poppins', sans-serif; font-size: 13px; color: white;">
+                            <span style="font-size: 13px;">Don't have an account? </span><a href="{% url 'signup' %}" style="color: white;">Sign up</a>
+                        </p>
+                    </div>
+                  </div>
+              </div>
+
+         {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+      </div>
+
+      <script>
+         const pass_field = document.querySelector('.pass-key');
+         const showBtn = document.querySelector('.show');
+         showBtn.addEventListener('click', function(){
+          if(pass_field.type === "password"){
+            pass_field.type = "text";
+            showBtn.textContent = "HIDE";
+            showBtn.style.color = "#3498db";
+          }else{
+            pass_field.type = "password";
+            showBtn.textContent = "SHOW";
+            showBtn.style.color = "#222";
+          }
+         });
+      </script>
+   </body>
+</html>

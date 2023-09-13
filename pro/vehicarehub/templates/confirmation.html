@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Appointment Confirmation{% endblock %}
+
+{% block content %}
+    <h1>Appointment Confirmation</h1>
+    
+    <h2>Your Appointment Details:</h2>
+    <ul>
+        <li><strong>Name:</strong> {{ appointment.name }}</li>
+        <li><strong>Email:</strong> {{ appointment.email }}</li>
+        <li><strong>Date:</strong> {{ appointment.date }}</li>
+        <li><strong>Time:</strong> {{ appointment.time }}</li>
+        <li><strong>Service:</strong> {{ appointment.service }}</li>
+    </ul>
+    
+    <p>Thank you for booking an appointment with us. We look forward to seeing you!</p>
+    
+    <p>If you have any questions or need to make changes to your appointment, please contact us at <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>
+    
+    <p><a href="{% url 'book_appointment' %}">Return to Appointment</a></p>
+{% endblock %}

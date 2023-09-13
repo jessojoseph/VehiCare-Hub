@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <section class="container">
+        <h1>Appointment List</h1>
+        
+        <!-- Add your appointment list content here -->
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>User</th>
+                    <th>Service Type</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Loop through appointments and display them here -->
+                {% for appointment in appointments %}
+                    <tr>
+                        <td>{{ appointment.date }}</td>
+                        <td>{{ appointment.time }}</td>
+                        <td>{{ appointment.user }}</td>
+                        <td>{{ appointment.service_type }}</td>
+                        <td>
+                            <!-- Add a button or link to cancel the appointment -->
+                            <a href="{% url 'cancel_appointment' appointment.id %}" class="btn btn-danger">Cancel</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5">No appointments available.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+{% endblock %}
