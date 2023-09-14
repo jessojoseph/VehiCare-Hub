@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker Dashboard</title>
+    <style>
+        /* Reset some default styles */
+        body, h1, p {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        /* Header Styles */
+        .header {
+            background-color: #007bff;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* Dashboard Styles */
+        .dashboard {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        h1 {
+            font-size: 24px;
+        }
+
+        .profile-info {
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: bold;
+            text-align: left;
+            margin-top: 10px;
+        }
+
+        .input-group input[type="text"],
+        .input-group input[type="email"],
+        .input-group input[type="password"],
+        .input-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .input-group input[type="text"]:focus,
+        .input-group input[type="email"]:focus,
+        .input-group input[type="password"]:focus,
+        .input-group textarea:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        .validation-error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .profile-picture {
+            max-width: 150px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: block;
+        }
+
+        /* Worker Actions */
+        .worker-actions {
+            text-align: center;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Worker Dashboard</h1>
+    </div>
+    <div class="dashboard">
+        <form method="POST" action="{% url 'editworker' %}" enctype="multipart/form-data" id="editProfileForm">
+            {% csrf_token %}
+            
+            <div class="profile-info">
+                <div class="input-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" value="{{ user.username }}" disabled>
+                </div>
+
+                <div class="input-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" value="{{ user.email }}" disabled>
+                </div>
+
+                <div class="input-group">
+                    <label for="fullname">Full Name:</label>
+                    <input type="text" id="fullname" name="fullname" value="{{ user.full_name }}" >
+                    <div class="validation-error" id="full_name_error"></div>
+                </div>
+
+                <div class="input-group">
+                    <label for="phone">Phone:</label>
+                    <input type="text" id="phone" name="phone" value="{{ form.instance.phone_number }}" >
+                    <div class="validation-error" id="phone_number_error"></div>
+                </div>
+
+                <div class="input-group">
+                    <label for="specification">Specification:</label>
+                    <input type="text" id="specification" name="specification" value="{{ form.instance.specification }}" >
+                </div>
+
+                <div class="input-group">
+                    <label for="profile_picture">Profile Picture:</label>
+                    <input type="file" id="profile_picture" name="profile_pic">
+                    <div class="validation-error" id="profile_picture_error"></div>
+                </div>
+            </div>
+
+            <div class="worker-actions">
+                <button type="submit" class="btn">Save Changes</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Example JavaScript for form field validation
+        document.querySelector('#editProfileForm').addEventListener('submit', function (event) {
+            let isValid = true;
+
+            // Full Name validation
+            const fullName = document.querySelector('#fullname').value;
+            if (fullName.trim() === '') {
+                document.querySelector('#full_name_error').textContent = 'Full Name is required';
+                isValid = false;
+            } else {
+                document.querySelector('#full_name_error').textContent = '';
+            }
+
+            // Phone Number validation
+            const phoneNumber = document.querySelector('#phone').value;
+            const phonePattern = /^\d{10}$/; // Assuming a 10-digit phone number
+            if (!phoneNumber.match(phonePattern)) {
+                document.querySelector('#phone_number_error').textContent = 'Invalid phone number (10 digits)';
+                isValid = false;
+            } else {
+                document.querySelector('#phone_number_error').textContent = '';
+            }
+
+            // Profile Picture validation
+            const profilePicture = document.querySelector('#profile_picture').files[0];
+            if (!profilePicture) {
+                document.querySelector('#profile_picture_error').textContent = 'Profile Picture is required';
+                isValid = false;
+            } else {
+                const allowedExtensions = ['jpg', 'jpeg', 'png'];
+                const fileName = profilePicture.name.toLowerCase();
+                const fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1);
+
+                if (!allowedExtensions.includes(fileExtension)) {
+                    document.querySelector('#profile_picture_error').textContent = 'Profile Picture must be in JPG or PNG format';
+                    isValid = false;
+                } else {
+                    document.querySelector('#profile_picture_error').textContent = '';
+                }
+            }
+
+            if (!isValid) {
+                event.preventDefault(); // Prevent form submission if there are validation errors
+            }
+        });
+    </script>
+</body>
+</html>

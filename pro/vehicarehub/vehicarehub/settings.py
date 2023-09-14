@@ -173,3 +173,15 @@ SOCIALACCOUNT_PROVIDERS = {
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL ='/'
+
+
+# Emailing settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'jessojoseph2024@mca.ajce.in'
+EMAIL_HOST_PASSWORD = 'riho ovfr oxxr wans' 
+# DEFAULT_FROM_EMAIL = 'jessojoseph2024@mca.ajce.in'
+PASSWORD_RESET_TIMEOUT = 14400
+EMAIL_DEBUG = True

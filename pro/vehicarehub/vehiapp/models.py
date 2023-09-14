@@ -1,9 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-from django.contrib.auth.models import User
 from django.utils import timezone
 import datetime
-from django.contrib.auth.models import User
+from django.db import models
 
 
 current_datetime = timezone.now()
@@ -102,3 +101,27 @@ class Appointment(models.Model):
     def __str__(self):
         return str(self.user_name)
 
+class Worker(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    specialized_service = models.CharField(max_length=100)
+    experience = models.PositiveIntegerField(null=True)  # Make experience field nullable
+    # Add more fields as needed
+
+    def __str__(self):
+        return self.user.username
+
+    
+class Workerprofile(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
+    profile_pic = models.FileField(upload_to='profile_photo/', blank=True, null=True)
+    fullname = models.CharField(max_length=255, blank=True, null=True)
+    phone = models.CharField(max_length=15, blank=True, null=True)
+    specification = models.CharField(max_length=255, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        if self.user:
+            return self.user.username
+        else:
+            return "Workerprofile with no associated user"

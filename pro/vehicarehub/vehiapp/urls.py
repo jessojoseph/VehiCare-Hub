@@ -20,6 +20,15 @@ urlpatterns = [
     path('confirmation/', views.confirmation, name='confirmation'),
     path('search/', views.search_view, name='search_results'),
     path('service/<int:service_id>/', views.service_detail, name='service_detail'),
+    path('change_password/', views.change_password_client, name='change_password'),
+    path('service/<int:service_id>/', views.service_view, name='service_view'),
+
+    path('addworker/', views.addWorker, name='addworker'),
+    path('workerdashboard/', views.workerdashboard, name='workerdashboard'),
+    path('viewworker/', views.viewworker, name='viewworker'),
+    path('worker_details/', views.worker_details, name='worker_details'),
+    path('editworker/', views.editworker, name='editworker'), 
+ 
 
 
  

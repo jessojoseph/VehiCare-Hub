@@ -21,8 +21,8 @@
 
                   <form method="post">
                     {% csrf_token %}
-                    {{form.as_p}}
-                    {% comment %} <fieldset>
+                    {% comment %} {{form.as_p}}
+                   <fieldset>
                         <legend>Your Information</legend>
                         <div class="mb-3">
                             {{ form.user_name.label_tag }}
@@ -30,7 +30,7 @@
                             
                         </div>
                         <!-- Add other user details input fields here -->
-                    </fieldset>
+                    </fieldset> {% endcomment %}
                 
                     <fieldset>
                         <legend>Vehicle Details</legend>
@@ -72,7 +72,7 @@
                             {{ form.service_type }}
                         </div>
                  
-                    </fieldset> {% endcomment %}
+                    </fieldset> 
                 
                     <button type="submit" class="btn btn-primary">Book Service</button>
                 </form>           

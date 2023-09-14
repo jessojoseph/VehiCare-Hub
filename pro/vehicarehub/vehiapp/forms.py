@@ -14,9 +14,6 @@ class ServiceForm(forms.ModelForm):
             'service_image': forms.FileInput(attrs={'class': 'form-control'}),
         }
 
-
-
-
 class AppointmentForm(forms.ModelForm):
     class Meta:
         model = Appointment
@@ -25,5 +22,7 @@ class AppointmentForm(forms.ModelForm):
             'service_date': forms.DateInput(attrs={'type': 'date'}),
             'service_time': forms.TimeInput(attrs={'type': 'time'}),
         }
+
+
 
 

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>{{ service.service_name }} Details</h2>
+    <div class="card">
+        <img class="card-img-top" src="{{ service.service_image.url }}" alt="Service Image">
+        <div class="card-body">
+            <h5 class="card-title">{{ service.service_name }}</h5>
+            <p class="card-text">{{ service.service_description }}</p>
+            <p class="card-text"><strong>Cost:</strong> ${{ service.service_cost }}</p>
+            
+            <!-- Additional Details -->
+            <h5 class="card-title">Additional Details</h5>
+            <p class="card-text"><strong>Category:</strong> {{ service.category }}</p>
+            <p class="card-text"><strong>Duration:</strong> {{ service.duration }} minutes</p>
+            <p class="card-text"><strong>Location:</strong> {{ service.location }}</p>
+            
+            <!-- Add more details as needed -->
+        </div>
+    </div>
+</div>
+{% endblock %}
