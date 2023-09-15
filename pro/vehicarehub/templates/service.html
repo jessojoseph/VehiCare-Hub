@@ -96,7 +96,7 @@
                         <h5 class="card-title">{{ ser.service_name }}</h5>
                         <p class="card-text">{{ ser.service_description }}</p>
                         <p class="card-text"><strong>Cost:</strong> ${{ ser.service_cost }}</p>
-                        <a href="{% url 'service_view' ser.id %}" class="btn btn-primary">View Details</a>
+                        {% comment %} <a href="{% url 'service_view' ser.id %}" class="btn btn-primary">View Details</a> {% endcomment %}
 
     
                         {% if user.is_staff %}

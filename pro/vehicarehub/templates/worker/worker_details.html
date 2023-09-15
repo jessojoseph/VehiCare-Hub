@@ -93,7 +93,15 @@
     </div>
     <div class="dashboard">
         <h1>Welcome, {{ worker_profile.fullname }}</h1>
-<img src="{{ worker_profile.profile_pic.url }}" alt="Profile Picture" class="profile-picture">
+<!-- Check if there is a profile picture, and display it if available -->
+{% if worker_profile.profile_pic %}
+    <img src="{{ worker_profile.profile_pic.url }}" alt="Profile Picture" class="profile-picture">
+{% else %}
+    <!-- Display a Bootstrap icon as the alternative icon -->
+    <span class="glyphicon glyphicon-user alternative-icon"></span>
+{% endif %}
+
+
 <div class="profile-info">
     <label for="username">Username:</label>
     <input type="text" id="username" name="username" value="{{ user.username }}" disabled>
@@ -101,14 +109,21 @@
     <label for="email">Email:</label>
     <input type="email" id="email" name="email" value="{{ user.email }}" disabled>
 
-    <label for="fullname">Full Name:</label>
-    <input type="text" id="fullname" name="fullname" value="{{ worker_profile.fullname }}" disabled>
+    <label for="fname">Full Name:</label>
+    <input type="text" id="fullname" name="fname" value="{{ user.first_name }}" disabled>
+
+    <label for="lname">Last Name:</label>
+    <input type="text" id="fullname" name="lname" value="{{ user.last_name }}" disabled>
 
     <label for="phone">Phone:</label>
-    <input type="text" id="phone" name="phone" value="{{ worker_profile.phone }}" disabled>
+    <input type="text" id="phone" name="phone" value="{{ worker_profile.phone_no }}" disabled>
 
     <label for="specification">Specification:</label>
-    <input type="text" id="specification" name="specification" value="{{ worker_profile.specification }}" disabled>
+    <input type="text" id="specification" name="specification" value="{{ worker.specialized_service}}" disabled>
+
+        <label for="experience">Experience:</label>
+        <input type="text" id="experience" name="experience" value="{{ worker.experience }}" disabled>
+
 </div>
 
         <div class="worker-actions">

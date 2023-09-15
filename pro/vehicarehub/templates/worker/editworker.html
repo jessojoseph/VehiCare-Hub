@@ -128,8 +128,13 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="fullname">Full Name:</label>
-                    <input type="text" id="fullname" name="fullname" value="{{ user.full_name }}" >
+                    <label for="fullname">First Name:</label>
+                    <input type="text" id="fullname" name="fname" value="{{ user.first_name }}" >
+                    <div class="validation-error" id="full_name_error"></div>
+                </div>
+                <div class="input-group">
+                    <label for="fullname">Last Name:</label>
+                    <input type="text" id="fullname" name="lname" value="{{ user.last_name }}" >
                     <div class="validation-error" id="full_name_error"></div>
                 </div>
 
@@ -142,6 +147,11 @@
                 <div class="input-group">
                     <label for="specification">Specification:</label>
                     <input type="text" id="specification" name="specification" value="{{ form.instance.specification }}" >
+                </div>
+
+                <div class="input-group">
+                    <label for="experience">Experience:</label>
+                    <input type="text" id="experience" name="experience" value="{{ form.instance.experience }}" >
                 </div>
 
                 <div class="input-group">

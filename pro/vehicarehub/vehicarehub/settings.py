@@ -185,3 +185,6 @@ EMAIL_HOST_PASSWORD = 'riho ovfr oxxr wans'
 # DEFAULT_FROM_EMAIL = 'jessojoseph2024@mca.ajce.in'
 PASSWORD_RESET_TIMEOUT = 14400
 EMAIL_DEBUG = True
+
+
+

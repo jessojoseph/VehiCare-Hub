@@ -19,7 +19,6 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from .models import CustomUser
 from .models import Worker
-from .models import Workerprofile
 
 
 User = get_user_model()
@@ -343,11 +342,10 @@ def addWorker(request):
             context = {
                  'user': user
     }
-            return redirect('workerdashboard')  # Replace 'adminindex' with your desired URL
+            return redirect('addworker')  # Replace 'adminindex' with your desired URL
 
     # For GET requests or when the form is invalid, render the form
     return render(request, 'addworker.html')
-
 
 def send_welcome_email(email, password, worker_name):
 
@@ -377,52 +375,69 @@ def send_welcome_email(email, password, worker_name):
 
 
 def worker_details(request):
-    user = request.user
+    user =    user = request.user
+    userid = request.user.id
 
     try:
-        worker_profile = Workerprofile.objects.get(user=user)
-    except Workerprofile.DoesNotExist:
+        now_worker=CustomUser.objects.get(id=userid)
+        worker_profile = UserProfile.objects.get(user=user)
+        worker = Worker.objects.get(user=user)
+    except UserProfile.DoesNotExist:
         worker_profile = None
 
     context = {
         'user': user,
+        'now_worker': now_worker,
         'worker_profile': worker_profile,
+        'worker':worker,
     }
     return render(request, 'worker/worker_details.html', context)
 
 def editworker(request):
     user = request.user
+    userid = request.user.id
+
     try:
-        worker_profile = Workerprofile.objects.get(user=user)
-    except Workerprofile.DoesNotExist:
+        now_worker=CustomUser.objects.get(id=userid)
+        worker_profile = UserProfile.objects.get(user=user)
+        worker = Worker.objects.get(user=user)
+    except UserProfile.DoesNotExist:
         worker_profile = None
+        worker=None
 
     if request.method == 'POST':
         # Manually extract data from the request
-        fullname = request.POST.get('fullname')
+        fname = request.POST.get('fname')
+        lname = request.POST.get('lname')
         phone = request.POST.get('phone')
         specification = request.POST.get('specification')
         profile_pic = request.FILES.get('profile_pic')
+        experience = request.POST.get('experience')
 
-        if not worker_profile:
-            # Create a new Workerprofile if it doesn't exist
-            worker_profile = Workerprofile(user=user)
+
+        print(fname,lname)
 
         # Update the Workerprofile fields
-        worker_profile.fullname = fullname
-        worker_profile.phone = phone
-        worker_profile.specification = specification
+        user.first_name = fname
+        user.last_name = lname
+        worker_profile.phone_no = phone
+        worker.specialized_service = specification
+        worker.experience = experience
+
 
         if profile_pic:
             worker_profile.profile_pic = profile_pic
 
         worker_profile.save()
+        worker.save()
+        user.save()
 
         return redirect('worker_details')
 
     context = {
         'user': user,
         'worker_profile': worker_profile,
+       'worker':worker,
     }
 
     return render(request, 'worker/editworker.html', context)
