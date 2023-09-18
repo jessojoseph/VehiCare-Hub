@@ -1,85 +1,65 @@
 {% extends 'base.html' %}
+
+{% block title %}Book Appointment{% endblock %}
+
 {% block content %}
-<!-- Booking Form Section -->
-<section class="booking-form-section">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-6">
-                <div class="booking-form-wrapper">
-                    <h2>Book an Appointment</h2>
-                    {% if messages %}
-<div class="alert alert-danger">
-    <ul>
-        {% for message in messages %}
-        <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-</div>
-{% endif %}
-
-                  <!-- appointment_form.html -->
-
-                  <form method="post">
-                    {% csrf_token %}
-                    {% comment %} {{form.as_p}}
-                   <fieldset>
-                        <legend>Your Information</legend>
-                        <div class="mb-3">
-                            {{ form.user_name.label_tag }}
-                            {{ form.user_name }}
-                            
-                        </div>
-                        <!-- Add other user details input fields here -->
-                    </fieldset> {% endcomment %}
-                
-                    <fieldset>
-                        <legend>Vehicle Details</legend>
-                        <div class="mb-3">
-                            {{ form.vehicle_model.label_tag }}
-                            {{ form.vehicle_model }}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.build_year.label_tag }}
-                            {{ form.build_year }}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.engine_number.label_tag }}
-                            {{ form.engine_number }}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.chassis_number.label_tag }}
-                            {{ form.chassis_number }}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.registration_number.label_tag }}
-                            {{ form.registration_number }}
-                        </div>
-                    </fieldset>
-                
-                    <fieldset>
-                        <legend>Appointment Details</legend>
-                        <div class="mb-3">
-                            {{ form.service_date.label_tag }}
-                            {{ form.service_date }}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.service_time.label_tag }}
-                            {{ form.service_time }}
-                        </div>
-                        
-                        <div class="mb-3">
-                            {{ form.service_type.label_tag }}
-                            {{ form.service_type }}
-                        </div>
-                 
-                    </fieldset> 
-                
-                    <button type="submit" class="btn btn-primary">Book Service</button>
-                </form>           
-                </div>
-            </div>
-            
+    <h1>Book an Appointment</h1>
+    <form method="post" enctype="multipart/form-data" class="appointment-form">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.user_name.id_for_label }}">User Name:</label>
+            <input type="text" id="{{ form.user_name.id_for_label }}" name="{{ form.user_name.name }}" value="{{ request.user.username }}" readonly class="form-control">
         </div>
-    </div>
-</section>
+        
+        <div class="form-group">
+            <label for="{{ form.vehicle_model.id_for_label }}">Vehicle Model:</label>
+            <input type="text" id="{{ form.vehicle_model.id_for_label }}" name="{{ form.vehicle_model.name }}" value="{{ form.vehicle_model.value }}" class="form-control">
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.build_year.id_for_label }}">Build Year:</label>
+            <input type="number" id="{{ form.build_year.id_for_label }}" name="{{ form.build_year.name }}" value="{{ form.build_year.value }}" class="form-control">
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.engine_number.id_for_label }}">Engine Number:</label>
+            <input type="text" id="{{ form.engine_number.id_for_label }}" name="{{ form.engine_number.name }}" value="{{ form.engine_number.value }}" class="form-control">
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.chassis_number.id_for_label }}">Chassis Number:</label>
+            <input type="text" id="{{ form.chassis_number.id_for_label }}" name="{{ form.chassis_number.name }}" value="{{ form.chassis_number.value }}" class="form-control">
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.registration_number.id_for_label }}">Registration Number:</label>
+            <input type="text" id="{{ form.registration_number.id_for_label }}" name="{{ form.registration_number.name }}" value="{{ form.registration_number.value }}" class="form-control">
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.service_date.id_for_label }}">Service Date:</label>
+            <input type="date" id="{{ form.service_date.id_for_label }}" name="{{ form.service_date.name }}" value="{{ form.service_date.value }}" class="form-control">
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.service_time.id_for_label }}">Service Time:</label>
+            <select id="{{ form.service_time.id_for_label }}" name="{{ form.service_time.name }}" class="form-control">
+                {% for time_slot in time_slots %}
+                    <option value="{{ time_slot }}">{{ time_slot }}</option>
+                {% endfor %}
+            </select>
+        </div>
+       
+        <div class="form-group">
+            <label for="{{ form.service_type.id_for_label }}">Service Type:</label>
+            <select id="{{ form.service_type.id_for_label }}" name="{{ form.service_type.name }}" class="form-control">
+                {% for service in service_types %}
+                    <option value="{{ service.id }}">{{ service.service_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Book Appointment</button>
+    </form>
 {% endblock %}

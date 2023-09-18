@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}View Appointments{% endblock %}
+
+{% block content %}
+    <h1>View Appointments</h1>
+
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Date</th>
+                <th>Time Slot</th>
+                <th>Status</th>
+                <th>Action</th>
+                <!-- Add other appointment fields as needed -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for appointment in appointments %}
+            <tr>
+                <td>{{ appointment.user_name }}</td>
+                <td>{{ appointment.service_date }}</td>
+                <td>{{ appointment.service_time }}</td>
+                <td>{{ appointment.appointment_status }}</td>
+                <td>
+                    {% if request.user.is_authenticated and not request.user.is_staff %}
+    {% if appointment.appointment_status == 'Scheduled' %}
+        <form method="post" action="{% url 'cancel_appointment' appointment.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Do you want to cancel the appointment?')">Cancel Appointment</button>
+        </form>
+    {% endif %}
+{% endif %}
+
+                </td>
+                <!-- Include other appointment details here -->
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p><a href="{% url 'index' %}">Back to Home</a></p>
+
+    
+{% endblock %}

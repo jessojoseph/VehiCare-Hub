@@ -7,18 +7,17 @@ from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.contrib.auth import get_user_model
-from .models import Service, UserProfile
-from .models import Service, UserProfile
+from .models import Service, UserProfile,Worker,Slot,CustomUser,Appointment
 from .forms import AppointmentForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Appointment
 from django.urls import reverse
-from .models import Service
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
-from .models import CustomUser
-from .models import Worker
+from datetime import datetime, time, timedelta
+from django.contrib.admin.views.decorators import staff_member_required
+from django.db import transaction
+
 
 
 User = get_user_model()
@@ -77,34 +76,90 @@ def search_view(request):
             pass
     return redirect('index')  # Redirect to the home page if no query or no service found
 
+from datetime import datetime, timedelta
+
 @login_required
 def book_appointment(request):
     if request.method == 'POST':
         form = AppointmentForm(request.POST)
         if form.is_valid():
-            appointment = form.save(commit=False)
-            
-            # Check if another appointment already exists at the selected date and time
-            existing_appointment = Appointment.objects.filter(
-                service_date=appointment.service_date,
-                service_time=appointment.service_time
-            ).exclude(pk=appointment.pk).first()  # Exclude the current appointment if editing
-            
-            if existing_appointment:
-                messages.error(request, 'Another appointment already exists at this date and time.')
-                return redirect('book_appointment')
-            
-            # Assign the currently logged-in user to the user_name field
-            appointment.user_name = request.user
-            appointment.save()
-            
-            messages.success(request, 'Appointment booked successfully.')
-            return redirect('confirmation')
+            with transaction.atomic():
+                # Check if there are already 7 appointments for the selected service_date
+                service_date = form.cleaned_data['service_date']
+                existing_appointments_count = Appointment.objects.filter(
+                    service_date=service_date
+                ).count()
+
+                if existing_appointments_count >= 7:
+                    return render(request, 'book_appointment.html', {'form': form, 'error_message': 'No more slots available for this date.'})
+
+                appointment = form.save(commit=False)
+                appointment.user_name = request.user
+                appointment.save()
+
+                return redirect('confirmation')
     else:
         form = AppointmentForm()
 
-    return render(request, 'book_appointment.html', {'form': form})
+    # Generate 7 equal time slots starting from 9:00 AM
+    base_time = datetime.strptime('09:00', '%H:%M')
+    time_slots = [(base_time + timedelta(hours=i)).strftime('%H:%M') for i in range(7)]
 
+    # Get service types from the Service model
+    service_types = Service.objects.all()
+
+    return render(request, 'book_appointment.html', {'form': form, 'time_slots': time_slots, 'service_types': service_types})
+
+
+@login_required
+def viewappointment(request):
+    if request.user.is_staff:
+        # Admin user can view all appointments
+        appointments = Appointment.objects.all()
+    else:
+        # Regular user can only view their own appointments
+        appointments = Appointment.objects.filter(user_name=request.user)
+    
+    context = {'appointments': appointments}
+    return render(request, 'viewappointments.html', context)
+
+
+def cancel_appointment(request, appointment_id):
+    appointment = get_object_or_404(Appointment, pk=appointment_id)
+    print(appointment_id)
+
+    if request.method == 'POST':
+        # Perform the cancellation logic here (e.g., change status to 'Cancelled')
+        appointment.appointment_status = 'Cancelled'
+        appointment.save()
+
+        appointment.delete()
+
+        return redirect('viewappointments')
+    return render(request, 'viewappointments.html', {'appointment': appointment})
+
+
+from datetime import datetime, timedelta, time, date
+
+def create_daily_slots(request):
+    if request.method == 'GET':
+        # Check if the slots for today already exist
+        if not Slot.objects.filter(service_date=date.today()).exists():
+            start_time = time(9, 0)  # Start at 9:00 AM
+            end_time = time(17, 0)   # End at 5:00 PM
+            slot_duration = timedelta(minutes=90)
+
+            current_time = datetime.combine(date.today(), start_time)
+            end_datetime = datetime.combine(date.today(), end_time)
+
+            while current_time < end_datetime:
+                slot = Slot(service_time=current_time.time(), is_booked=False)
+                slot.save()
+                current_time += slot_duration
+
+        return HttpResponse("Daily slots have been created.")
+    else:
+        return HttpResponse("Invalid request method.")
 
 def confirmation(request):
     return render(request, 'confirmation.html')

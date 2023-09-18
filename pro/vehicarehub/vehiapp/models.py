@@ -86,21 +86,7 @@ class UserProfile(models.Model):
             return self.user.username
         else:
             return "UserProfile with no associated user"
-
-class Appointment(models.Model):
-    user_name = models.ForeignKey(CustomUser, on_delete=models.CASCADE) 
-    vehicle_model = models.CharField(max_length=100, default='Yamaha')
-    build_year = models.IntegerField(default=2023)
-    engine_number = models.CharField(max_length=100, default='')
-    chassis_number = models.CharField(max_length=100, default='')
-    registration_number = models.CharField(max_length=100, default='')
-    service_date = models.DateField(default=timezone.now)
-    service_time = models.TimeField(default=datetime.time(0, 0))
-    service_type = models.ForeignKey(Service, on_delete=models.CASCADE, null=True)
-
-    def __str__(self):
-        return str(self.user_name)
-
+        
 class Worker(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     specialized_service = models.CharField(max_length=100)
@@ -109,3 +95,28 @@ class Worker(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+class Slot(models.Model):
+    service_date = models.DateField()
+    service_time = models.TimeField()
+    is_booked = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.service_date} {self.service_time}"
+
+
+class Appointment(models.Model):
+    user_name = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    vehicle_model = models.CharField(max_length=100, default='Yamaha')
+    build_year = models.IntegerField(default=2023)
+    engine_number = models.CharField(max_length=100, default='')
+    chassis_number = models.CharField(max_length=100, default='')
+    registration_number = models.CharField(max_length=100, default='')
+    service_date = models.DateField()
+    service_time = models.TimeField()
+    service_type = models.ForeignKey(Service, on_delete=models.CASCADE, null=True)
+    appointment_status = models.CharField(max_length=50, default='Scheduled')  # Add the 'appointment_status' field
+
+    def __str__(self):
+        return f"{self.user_name}'s Appointment on {self.service_date} at {self.service_time}"
+

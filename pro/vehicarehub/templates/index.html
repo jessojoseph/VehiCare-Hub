@@ -79,6 +79,7 @@
           <a href="{% url 'service' %}" class="nav-item nav-link">Service</a>
 
           {% if user.is_staff %}
+          <a href="{% url 'viewappointments' %}" class="nav-item nav-link">View Appointments</a>
           <a href="{% url 'add-service' %}" class="nav-item nav-link">Add Services</a>
           <a href="{% url 'addworker' %}" class="nav-item nav-link">Add Worker</a>
           <a href="{% url 'viewworker' %}" class="nav-item nav-link">View Worker</a>
@@ -110,6 +111,7 @@
             >
             <div class="dropdown-menu bg-light border-0 m-0">
               <a href="{% url 'book_appointment' %}" class="dropdown-item">Book Appointment</a>
+              <a href="{% url 'viewappointments' %}" class="dropdown-item">View Appointment</a>
               <a href="quote.html" class="dropdown-item">Track Services</a>
               <a href="team.html" class="dropdown-item">Our Team</a>
               <a href="testimonial.html" class="dropdown-item">Testimonial</a>
@@ -128,6 +130,7 @@
               <a href="{% url 'viewprofile' %}" class="dropdown-item"
                 >View Profile</a
               >
+             
               <a
                 href="{% url 'logout' %}?next={% url 'index' %}"
                 class="dropdown-item"

@@ -17,7 +17,13 @@ urlpatterns = [
     path('update_service/<int:service_id>/', views.update_service, name='update_service'),
     path('base/', views.base, name='base'),
     path('book_appointment/', views.book_appointment, name='book_appointment'),
+    path('create_slots/', views.create_daily_slots, name='create_slots'),
     path('confirmation/', views.confirmation, name='confirmation'),
+    path('viewappointments/', views.viewappointment, name='viewappointments'),
+    path('cancel_appointment/<int:appointment_id>/', views.cancel_appointment, name='cancel_appointment'),
+    
+
+
     path('search/', views.search_view, name='search_results'),
     path('service/<int:service_id>/', views.service_detail, name='service_detail'),
     path('change_password/', views.change_password_client, name='change_password'),

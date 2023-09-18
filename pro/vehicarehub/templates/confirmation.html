@@ -5,14 +5,15 @@
 {% block content %}
     <h1>Appointment Confirmation</h1>
     
-    <h2>Your Appointment Details:</h2>
+    {% comment %} <h2>Your Appointment Details:</h2>
     <ul>
-        <li><strong>Name:</strong> {{ appointment.name }}</li>
-        <li><strong>Email:</strong> {{ appointment.email }}</li>
-        <li><strong>Date:</strong> {{ appointment.date }}</li>
-        <li><strong>Time:</strong> {{ appointment.time }}</li>
-        <li><strong>Service:</strong> {{ appointment.service }}</li>
-    </ul>
+        <li><strong>Appointment ID:</strong> {{ appointment.id }}</li>
+        <li><strong>Name:</strong> {{ appointment.user_name }}</li>
+        <li><strong>Email:</strong> {{ appointment.user_name.email }}</li>
+        <li><strong>Date:</strong> {{ appointment.service_date }}</li>
+        <li><strong>Time:</strong> {{ appointment.service_time }}</li>
+        <li><strong>Service:</strong> {{ appointment.service_type.service_name }}</li>
+    </ul> {% endcomment %}
     
     <p>Thank you for booking an appointment with us. We look forward to seeing you!</p>
     

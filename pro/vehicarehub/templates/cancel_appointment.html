@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Appointment Cancellation{% endblock %}
+
+{% block content %}
+    <h1>Appointment Cancellation</h1>
+
+    <p>Your appointment has been successfully canceled.</p>
+
+    {% comment %} <p>Appointment Details:</p>
+    <ul>
+        <li><strong>Name:</strong> {{ appointment.user_name }}</li>
+        <li><strong>Date:</strong> {{ appointment.service_date }}</li>
+        <li><strong>Time Slot:</strong> {{ appointment.service_time }}</li>
+        <li><strong>Status:</strong> {{ appointment.appointment_status }}</li>
+    </ul> {% endcomment %}
+
+    <p>If you have any further questions or need assistance, please feel free to contact us.</p>
+
+    <p><a href="{% url 'viewappointments' %}">Return to Appointments</a></p>
+{% endblock %}
