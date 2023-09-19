@@ -64,8 +64,8 @@
                 <!-- Sidebar Menu -->
                 <ul class="sidebar-menu" data-widget="tree">
                     <!-- Optionally add your sidebar navigation items here -->
-                    <li class="active"><a href="#"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
-                    <li><a href="{% url 'worker_dashboard_tasks' %}"><i class="fa fa-tasks"></i> <span>Tasks</span></a></li>
+                    <li><a href="{% url 'workerdashboard' %}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
+                    <li><a href="{% url 'worker_dashboard_tasks' %}"><i class="fa fa-tasks"></i> <span>Tasks</span></a></li>workerdashboard
                     <li><a href="#"><i class="fa fa-tasks"></i> <span>New Bookings</span></a></li>
                     <li><a href="#"><i class="fa fa-tasks"></i> <span>Apply Leave</span></a></li>
 
@@ -78,17 +78,12 @@
         <!-- Content Wrapper -->
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
-            <section class="content-header">
-                <h1>
-                    Dashboard
-                    <small>Welcome to your dashboard.</small>
-                </h1>
-            </section>
+        
 
             <!-- Main content -->
             <section class="content">
                 <!-- Your dashboard content goes here -->
-                <p>This is the main content of the dashboard.</p>
+                {% block content %}{% endblock %}
             </section>
         </div>
         <!-- /.content-wrapper -->

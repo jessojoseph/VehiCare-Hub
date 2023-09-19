@@ -1,38 +1,44 @@
-{% comment %} <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tasks</title>
-    <!-- Add your CSS links here if needed -->
-</head>
-<body>
-    <!-- Header -->
-    <header>
-        <h1>Tasks</h1>
-    </header>
+{% extends 'basew.html' %}
 
-    <!-- Main content -->
-    <main>
-        <section>
-            <h2>Task 1</h2>
-            <p>This is the description of Task 1.</p>
-        </section>
-        
-        <section>
-            <h2>Task 2</h2>
-            <p>This is the description of Task 2.</p>
-        </section>
-        
-        <!-- Add more tasks as needed -->
-    </main>
+{% block title %}Worker Dashboard - Tasks{% endblock %}
 
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2023 Worker Dashboard</p>
-    </footer>
+{% block content %}
+    <h1 class="text-center mb-4">Assigned Tasks</h1>
 
-    <!-- Add your JavaScript links here if needed -->
-</body>
-</html> {% endcomment %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Vehicle Registration Number</th>
+                    <th>Service Type</th>
+                    <th>Status</th>
+                    <th>Deadline</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in worker_tasks %}
+                    <tr>
+                        <td>{{ task.title }}</td>
+                        <td>{{ task.description }}</td>
+                        <td>{{ task.appointment.registration_number }}</td>
+                        <td>{{ task.appointment.service_type.service_name }}</td>
+                        <td>
+                            <span class="badge {% if task.status == 'Pending' %}badge-danger{% elif task.status == 'In Progress' %}badge-warning{% else %}badge-success{% endif %}">
+                                {{ task.status }}
+                            </span>
+                        </td>
+                        <td>{{ task.deadline }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6">No assigned tasks.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
+    <p><a href="{% url 'workerdashboard' %}" class="btn btn-primary">Go Back</a></p>
+{% endblock %}

@@ -34,8 +34,11 @@ urlpatterns = [
     path('worker_details/', views.worker_details, name='worker_details'),
     path('editworker/', views.editworker, name='editworker'), 
     path('viewservice/<int:view_id>', views.view_service, name='viewservice'),
-    path('task', views.task, name='task'), 
- 
+
+
+    path('assign_task', views.assign_task, name='assign_task'), 
+    path('workerdashboard/task/', views.worker_dashboard_tasks, name='worker_dashboard_tasks'),
+
  
 
 

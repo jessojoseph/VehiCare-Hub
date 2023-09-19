@@ -501,3 +501,74 @@ def view_service(request,view_id):
 
 def task(request):
     return render(request, 'worker/task.html')
+
+
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Worker, Appointment, Task
+
+def assign_task(request):
+    if request.method == 'POST':
+        worker_id = request.POST.get('worker_id')
+        appointment_id = request.POST.get('appointment_id')
+        
+        if worker_id and appointment_id:
+            try:
+                worker = Worker.objects.get(id=worker_id)
+                appointment = Appointment.objects.get(id=appointment_id)
+                
+                if worker.is_available:
+                    task = Task.objects.create(
+                        title=f"Task for {appointment.user_name.username}",
+                        description=f"Assignment for appointment on {appointment.service_date} at {appointment.service_time}",
+                        worker=worker,
+                        appointment=appointment,  # Assign the selected appointment to the task
+                        status='pending',  # Set the initial status as pending or as needed
+                        deadline=appointment.service_date,  # Set the deadline based on the appointment date
+                    )
+                    
+                    # Mark the worker as unavailable after assigning the task
+                    worker.is_available = False
+                    worker.save()
+                    
+                    # Update the appointment status if needed
+                    appointment.appointment_status = 'Assigned'
+                    appointment.save()
+                    
+                    return redirect('viewappointments')  # Redirect to a task list page or other appropriate page
+                else:
+                    # Handle the case when the worker is not available
+                    # You can display a message or redirect to an error page
+                    pass  # Add your code here
+                
+            except Worker.DoesNotExist:
+                # Handle the case when no matching worker is found
+                pass  # Add your code here
+                
+            except Appointment.DoesNotExist:
+                # Handle the case when no matching appointment is found
+                pass  # Add your code here
+
+    # Render the task assignment form
+    workers = Worker.objects.filter(is_available=True)  # Fetch available workers
+    appointments = Appointment.objects.filter(appointment_status='Scheduled')  # Fetch scheduled appointments
+    return render(request, 'assign_task.html', {'workers': workers, 'appointments': appointments})
+
+
+from django.shortcuts import render
+from .models import Task, Worker
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def worker_dashboard_tasks(request):
+    try:
+        worker = Worker.objects.get(user=request.user)
+        worker_tasks = Task.objects.filter(worker=worker)
+    except Worker.DoesNotExist:
+        worker_tasks = []  # Handle the case where the logged-in user is not a worker
+
+    context = {'worker_tasks': worker_tasks}
+    return render(request, 'worker/task.html', context)
+
+

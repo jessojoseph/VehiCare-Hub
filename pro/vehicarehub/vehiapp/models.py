@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils import timezone
-import datetime
 from django.db import models
 
 
@@ -90,7 +89,8 @@ class UserProfile(models.Model):
 class Worker(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     specialized_service = models.CharField(max_length=100)
-    experience = models.PositiveIntegerField(null=True)  # Make experience field nullable
+    experience = models.PositiveIntegerField(null=True)
+    is_available = models.BooleanField(default=True) 
 
 
     def __str__(self):
@@ -120,3 +120,16 @@ class Appointment(models.Model):
     def __str__(self):
         return f"{self.user_name}'s Appointment on {self.service_date} at {self.service_time}"
 
+
+
+class Task(models.Model):
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    worker = models.ForeignKey(Worker, on_delete=models.CASCADE)
+    appointment = models.ForeignKey(Appointment, on_delete=models.SET_NULL, null=True)
+    status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('in_progress', 'In Progress'), ('completed', 'Completed')])
+    deadline = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
