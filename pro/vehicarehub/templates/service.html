@@ -64,12 +64,6 @@
                 <!-- End of added part -->
             </div>
             
-            <div class="h-100 d-lg-inline-flex align-items-center d-none">
-                <a class="btn btn-square rounded-circle bg-light text-primary me-2" href=""><i class="fab fa-facebook-f"></i></a>
-                <a class="btn btn-square rounded-circle bg-light text-primary me-2" href=""><i class="fab fa-twitter"></i></a>
-                <a class="btn btn-square rounded-circle bg-light text-primary me-2" href=""><i class="fab fa-linkedin-in"></i></a>
-                <a class="btn btn-square rounded-circle bg-light text-primary me-0" href=""><i class="fab fa-instagram"></i></a>
-            </div>
         </div>
     </nav>
 
@@ -82,19 +76,93 @@
         </div>
     </div>
 </div>
+
 {% endif %}
 
-    
+<div class="mx-auto" style="width: 100%; max-width: 600px; height: 50px">
+    <form id="search-form">
+        <div class="input-group" style="height: 50px">
+            <input class="form-control border-success w-50" type="text" id="query" name="query" placeholder="Search by Service Name or Cost">
+            <button type="submit" class="btn btn-success border-0 w-25">Search</button>
+        </div>
+    </form>
+</div>
+
+<div class="container" style="max-width: 1700px; margin-top: 70px;" id="results">
+    <!-- Results will be displayed here -->
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Define a function to handle form submission
+    function handleFormSubmission() {
+        // Get search query from form
+        var query = $("#query").val();
+        console.log("Form submitted!");
+        console.log("Query:", query);
+
+        // Send AJAX request to your Django view
+        $.ajax({
+            type: "GET",
+            url: "/search_services/",  // Replace with the actual URL of your view
+            data: { query: query },
+            dataType: "json",
+            success: function (data) {
+                // Check if there are any results
+                if (data.services.length === 0) {
+                    // No results found, display a message
+                    $("#results").html("<p>No services found with the given query.</p>");
+                    $("#services-listings").hide();
+                } else {
+                    // Results found, construct HTML for displaying services
+                    var resultsHtml = '<div class="row">';
+
+                    $.each(data.services, function (index, service) {
+                        resultsHtml += '<div class="col-md-4">';
+                        resultsHtml += '<div class="card mb-4">';
+                        resultsHtml += '<img class="card-img-top" src="' + service.image + '" alt="Service Image">';
+                        resultsHtml += '<div class="card-body">';
+                        resultsHtml += '<h5 class="card-title">' + service.name + '</h5>';
+                        resultsHtml += '<p class="card-text"><strong>Cost:</strong> $' + service.cost + '</p>';
+                        {% comment %} resultsHtml += '<a href="/vehiapp/viewservice/' + service.id + '/" class="btn btn-primary">View Service</a>'; {% endcomment %}
+                        resultsHtml += '</div>';
+                        resultsHtml += '</div>';
+                        resultsHtml += '</div>';
+                    });
+
+                    resultsHtml += '</div>';
+                    $("#results").html(resultsHtml);
+                    $("#services-listings").hide();
+                }
+            },
+            error: function (xhr, status, error) {
+                // Log any errors to the console
+                console.error(xhr.responseText);
+            },
+        });
+    }
+
+    // Call the form submission handler function when the document is ready
+    $(document).ready(function () {
+        $("#search-form").submit(function (e) {
+            e.preventDefault();
+            handleFormSubmission();
+        });
+    });
+</script>
 
     <div class="container">
-        <div class="row">
+        <div class="row" id = "services-listings">
+            
             {% for ser in ser %}
+            
             <div class="col-md-4">
+                <a href="{% url 'viewservice' ser.id %}">
                 <div class="card mb-4">
                     <img class="card-img-top" src="{{ ser.service_image.url }}" alt="Service Image" style="height: 250px; object-fit: cover; width: 100%;">
                     <div class="card-body">
                         <h5 class="card-title">{{ ser.service_name }}</h5>
-                        <p class="card-text">{{ ser.service_description }}</p>
+                        <!-- <p class="card-text">{{ ser.service_description }}</p> -->
                         <p class="card-text"><strong>Cost:</strong> ${{ ser.service_cost }}</p>
                         {% comment %} <a href="{% url 'service_view' ser.id %}" class="btn btn-primary">View Details</a> {% endcomment %}
 
@@ -102,7 +170,7 @@
                         {% if user.is_staff %}
                         <!-- Display Update and Delete buttons for admin users -->
                         <div class="d-flex justify-content-between">
-                            <a href="{% url 'update_service' ser.id %}" class="btn btn-primary">Update</a>
+                            <a href="{% url 'update_service' ser.id %}" class="btn btn-primary" style="margin-right: 230px;">Update</a>
                             <form action="{% url 'delete_service' ser.id %}" method="post">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-danger">Delete</button>
@@ -111,7 +179,9 @@
                         {% endif %}
                     </div>
                 </div>
+            </a>
             </div>
+        
             {% endfor %}
         </div>
     </div>

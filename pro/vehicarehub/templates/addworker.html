@@ -9,29 +9,90 @@
                     <h5 class="card-title">Add Worker</h5>
                 </div>
                 <div class="card-body">
-                    <form method="post" class="form">
+                    <form method="post" class="form" id="registration-form">
                         {% csrf_token %}
                         
                         <!-- Add form input fields manually -->
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
                             <input type="text" class="form-control" id="username" name="username" required>
+                            <span id="username-error" class="text-danger"></span>
                         </div>
                         
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
                             <input type="email" class="form-control" id="email" name="email" required>
+                            <span id="email-error" class="text-danger"></span>
                         </div>
                         
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
                             <input type="password" class="form-control" id="password" name="password" required>
+                            <span id="password-error" class="text-danger"></span>
                         </div>
-
+                    
                         <!-- Add more fields as needed -->
-
+                    
                         <button type="submit" class="btn btn-primary">Register</button>
                     </form>
+                    
+                    <script>
+                        document.getElementById('registration-form').addEventListener('submit', function(event) {
+                            let username = document.getElementById('username').value;
+                            let email = document.getElementById('email').value;
+                            let password = document.getElementById('password').value;
+                    
+                            // Reset previous error messages
+                            document.getElementById('username-error').innerText = '';
+                            document.getElementById('email-error').innerText = '';
+                            document.getElementById('password-error').innerText = '';
+                    
+                            let isValid = true;
+                    
+                            // Validate username
+                            if (username.trim() === '') {
+                                document.getElementById('username-error').innerText = 'Username is required';
+                                isValid = false;
+                            }
+                    
+                            // Validate email
+                            if (email.trim() === '') {
+                                document.getElementById('email-error').innerText = 'Email is required';
+                                isValid = false;
+                            } else if (!isValidEmail(email)) {
+                                document.getElementById('email-error').innerText = 'Invalid email format';
+                                isValid = false;
+                            }
+                    
+                            // Validate password
+                            if (password.trim() === '') {
+                                document.getElementById('password-error').innerText = 'Password is required';
+                                isValid = false;
+                            } else if (!isValidPassword(password)) {
+                                document.getElementById('password-error').innerText = 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character';
+                                isValid = false;
+                            }
+                    
+                            // Prevent form submission if validation fails
+                            if (!isValid) {
+                                event.preventDefault();
+                            }
+                        });
+                    
+                        // Function to validate email format
+                        function isValidEmail(email) {
+                            let emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+                            return emailRegex.test(email);
+                        }
+                    
+                        // Function to validate password format
+                        function isValidPassword(password) {
+                            // Requires at least 8 characters, one uppercase letter, one lowercase letter, one digit, and one special character
+                            let passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
+                            return passwordRegex.test(password);
+                        }
+                    </script>
+                    
                 </div>
             </div>
         </div>

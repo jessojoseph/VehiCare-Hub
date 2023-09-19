@@ -65,7 +65,11 @@
                 <ul class="sidebar-menu" data-widget="tree">
                     <!-- Optionally add your sidebar navigation items here -->
                     <li class="active"><a href="#"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
-                    <li><a href="#"><i class="fa fa-tasks"></i> <span>Tasks</span></a></li>
+                    <li><a href="{% url 'task' %}"><i class="fa fa-tasks"></i> <span>Tasks</span></a></li>
+                    <li> <a href="{% url 'worker_details' %}">My Profile</a></li>
+                    <li><a href="#"><i class="fa fa-tasks"></i> <span>New Bookings</span></a></li>
+                    <li><a href="#"><i class="fa fa-tasks"></i> <span>Apply Leave</span></a></li>
+
                 </ul>
                 <!-- /.sidebar-menu -->
             </section>

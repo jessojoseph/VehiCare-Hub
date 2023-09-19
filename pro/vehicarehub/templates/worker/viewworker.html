@@ -3,11 +3,26 @@
 {% block title %}Custom Page Title{% endblock %}
 
 {% block content %}
-
     <h1>Registered Workers</h1>
-    <ul>
-        {% for worker in workers %}
-            <li>{{ worker.user.username }} - {{ worker.user.email }}</li>
-        {% endfor %}
-    </ul>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Name</th>
+                
+                <!-- Add more table headers if needed -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for worker in workers %}
+                <tr>
+                    <td>{{ worker.user.username }}</td>
+                    <td>{{ worker.user.email }}</td>
+                    <td>{{ worker.user.first_name }}</td>
+                    <!-- Add more table cells for additional worker details -->
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}

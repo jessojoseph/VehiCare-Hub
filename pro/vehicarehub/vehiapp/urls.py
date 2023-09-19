@@ -24,8 +24,7 @@ urlpatterns = [
     
 
 
-    path('search/', views.search_view, name='search_results'),
-    path('service/<int:service_id>/', views.service_detail, name='service_detail'),
+    path('search_services/', views.search_services, name='search_services'),
     path('change_password/', views.change_password_client, name='change_password'),
     path('service/<int:service_id>/', views.service_view, name='service_view'),
 
@@ -34,6 +33,9 @@ urlpatterns = [
     path('viewworker/', views.viewworker, name='viewworker'),
     path('worker_details/', views.worker_details, name='worker_details'),
     path('editworker/', views.editworker, name='editworker'), 
+    path('viewservice/<int:view_id>', views.view_service, name='viewservice'),
+    path('task', views.task, name='task'), 
+ 
  
 
 
@@ -42,4 +44,5 @@ urlpatterns = [
     path('password_reset/done/',auth_views.PasswordResetDoneView.as_view(),name='password_reset_done'),
     path('reset/<uidb64>/<token>/',auth_views.PasswordResetConfirmView.as_view(),name='password_reset_confirm'),
     path('reset/done/',auth_views.PasswordResetCompleteView.as_view(),name='password_reset_complete'),
+
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

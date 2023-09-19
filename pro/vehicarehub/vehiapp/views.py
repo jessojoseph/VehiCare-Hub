@@ -17,8 +17,8 @@ from django.contrib import messages
 from datetime import datetime, time, timedelta
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db import transaction
-
-
+from django.db.models import Q
+from django.http import JsonResponse
 
 User = get_user_model()
 
@@ -51,30 +51,28 @@ def change_password_client(request):
     
     return render(request, 'change_password.html', {'msg': val})
 
+@login_required
+def search_services(request):
+    query = request.GET.get('query')
+    print("Query:", query)
 
-def service_detail(request, service_id):
-    # Retrieve the service object using the 'service_id' parameter
-    service = get_object_or_404(Service, pk=service_id)
-    
-    # Render the service detail template with the 'service' object
-    return render(request, 'service_detail.html', {'service': service})
+    services_data = []
 
-def search_view(request):
-    if 'q' in request.GET:
-        query = request.GET['q']
-        # Implement your search logic here to find the relevant service
-        # For example, you can use Django's queryset filter to search for services
-        # Assuming you have a Service model with a 'name' field
-        service = Service.objects.filter(service_name__icontains=query).first()
-        if service:
-            # Generate the URL for the service detail page
-            service_detail_url = reverse('service_detail', args=[service.id])
-            # Redirect the user to the service detail page
-            return redirect(service_detail_url)
-        else:
-            # If no service is found, you can handle it accordingly (e.g., show a message)
-            pass
-    return redirect('index')  # Redirect to the home page if no query or no service found
+    if query:
+        services = Service.objects.filter(
+            Q(service_name__icontains=query) | Q(service_cost__icontains=query)
+        )
+
+        for service in services:
+            service_dict = {
+                'id': service.pk,
+                'name': service.service_name,
+                'cost': service.service_cost,
+                'image': service.service_image.url,
+            }
+            services_data.append(service_dict)
+
+    return JsonResponse({'services': services_data})
 
 from datetime import datetime, timedelta
 
@@ -496,3 +494,10 @@ def editworker(request):
     }
 
     return render(request, 'worker/editworker.html', context)
+def view_service(request,view_id):
+    ser=Service.objects.get(id=view_id)
+    print(ser)
+    return render(request,'viewservice.html',{'ser':ser})
+
+def task(request):
+    return render(request, 'worker/task.html')

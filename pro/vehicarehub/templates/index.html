@@ -101,7 +101,9 @@
 
           <!-- Add this part for the user's name and edit profile link -->
           {% elif user.is_authenticated %}
+
           <a href="about.html" class="nav-item nav-link">About Us</a>
+
           <div class="nav-item dropdown">
             <a
               href="#"
@@ -147,16 +149,12 @@
         </div>
 
         <div class="h-100 d-lg-inline-flex align-items-center d-none">
-          <!-- Add the search bar here -->
-        {% comment %} <form class="d-flex">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-primary" type="submit">Search</button>
-      </form> {% endcomment %}
+  
 
-      <form class="d-flex" action="{% url 'search_results' %}" method="get">
+      {% comment %} <form class="d-flex" action="{% url 'search_results' %}" method="get">
         <input class="form-control me-2" type="search" name="q" placeholder="Search Service" aria-label="Search">
         <button class="btn btn-outline-primary" type="submit">Search</button>
-    </form>
+    </form> {% endcomment %}
     
         </div>
       </div>
