@@ -130,6 +130,32 @@ class Task(models.Model):
     status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('in_progress', 'In Progress'), ('completed', 'Completed')])
     deadline = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
+    work_done = models.TextField(blank=True, null=True)
+    materials_used = models.TextField(blank=True, null=True)
+    additional_notes = models.TextField(blank=True, null=True)
+    audio_file = models.FileField(upload_to='audio_recordings/', null=True)
 
     def __str__(self):
         return self.title
+
+class AudioRecording(models.Model):
+    audio_file = models.FileField(upload_to='audio_recordings/')  
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    worker = models.ForeignKey(Worker, on_delete=models.CASCADE, default=None)  # Add this field
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default=None)  # Provide a default value here
+
+    def __str__(self):
+        return self.audio_file.name
+
+
+
+class LeaveRequest(models.Model):
+    worker = models.ForeignKey(Worker, on_delete=models.CASCADE)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    reason = models.TextField()
+    status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')])
+
+    def __str__(self):
+        return f"{self.worker.user.username}'s Leave Request"
+

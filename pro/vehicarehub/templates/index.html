@@ -83,7 +83,10 @@
           <a href="{% url 'add-service' %}" class="nav-item nav-link">Add Services</a>
           <a href="{% url 'addworker' %}" class="nav-item nav-link">Add Worker</a>
           <a href="{% url 'viewworker' %}" class="nav-item nav-link">View Worker</a>
-          <a href="{% url 'assign_task' %}" class="nav-item nav-link">Assign Workes</a>
+          <a href="{% url 'view_leavereq' %}" class="nav-item nav-link">Leave Requests</a>
+          <a href="{% url 'assign_task' %}" class="nav-item nav-link">Assign Works</a>
+          <a href="{% url 'view_updates' %}" class="nav-item nav-link">Track Works</a>
+
 
           <div class="nav-item dropdown">
             <a
@@ -116,7 +119,7 @@
             <div class="dropdown-menu bg-light border-0 m-0">
               <a href="{% url 'book_appointment' %}" class="dropdown-item">Book Appointment</a>
               <a href="{% url 'viewappointments' %}" class="dropdown-item">View Appointment</a>
-              <a href="quote.html" class="dropdown-item">Track Services</a>
+              <a href="{% url 'view_updates' %}" class="dropdown-item">Track Services</a>
               <a href="team.html" class="dropdown-item">Our Team</a>
               <a href="testimonial.html" class="dropdown-item">Testimonial</a>
               <a href="404.html" class="dropdown-item">404 Page</a>

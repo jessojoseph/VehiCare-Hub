@@ -1,0 +1,105 @@
+{% extends 'basew.html' %}
+
+{% block title %}Update Work Status{% endblock %}
+
+{% block content %}
+    <h1 class="text-center mb-4">Update Work Status</h1>
+
+    <p><strong>Title:</strong> {{ task.title }}</p>
+    <p><strong>Description:</strong> {{ task.description }}</p>
+    <p><strong>Vehicle Registration Number:</strong> {{ task.appointment.registration_number }}</p>
+    <p><strong>Service Type:</strong> {{ task.appointment.service_type.service_name }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="new_status">New Status:</label>
+            <select class="form-control" id="new_status" name="new_status">
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+            </select>
+        </div>
+
+        <!-- Additional fields for capturing work details -->
+        <div class="form-group">
+            <label for="work_done">Work Done:</label>
+            <textarea class="form-control" id="work_done" name="work_done" rows="4">{{ task.work_done }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="materials_used">Materials Used:</label>
+            <textarea class="form-control" id="materials_used" name="materials_used" rows="4">{{ task.materials_used }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="additional_notes">Additional Notes:</label>
+            <textarea class="form-control" id="additional_notes" name="additional_notes" rows="4">{{ task.additional_notes }}</textarea>
+        </div>
+
+        <div class="form-group">
+          <!-- Add these elements to your form -->
+          <input type="hidden" id="audio_data" name="audio_data">
+          <button type="button" id="start_stop_recording">Start Recording</button>
+      </div>
+      <audio id="audio-player" controls></audio>
+      
+      <div id="recording-status"></div>
+      
+      <button type="button" id="save_audio" class="btn btn-secondary">Save Audio</button>
+      <button type="submit" class="btn btn-primary">Update Status</button>
+      
+      <script>
+          // JavaScript to handle audio recording and playback
+          const startStopRecordingButton = document.getElementById('start_stop_recording');
+          const audioDataInput = document.getElementById('audio_data');
+          const audioPlayer = document.getElementById('audio-player');
+          const recordingStatusDiv = document.getElementById('recording-status');
+          let mediaRecorder;
+          let audioChunks = [];
+          let isRecording = false; // Add a flag to track recording state
+      
+          startStopRecordingButton.addEventListener('click', () => {
+              if (!isRecording) {
+                  navigator.mediaDevices.getUserMedia({ audio: true })
+                      .then(function (stream) {
+                          mediaRecorder = new MediaRecorder(stream);
+      
+                          mediaRecorder.ondataavailable = (event) => {
+                              if (event.data.size > 0) {
+                                  audioChunks.push(event.data);
+                              }
+                          };
+      
+                          mediaRecorder.onstop = () => {
+                              const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                              audioDataInput.value = audioBlob;
+                              recordingStatusDiv.textContent = 'Recording stopped.';
+                              audioPlayer.src = URL.createObjectURL(audioBlob); // Set the audio player source
+                              audioPlayer.style.display = 'block'; // Show the audio player
+                          };
+      
+                          mediaRecorder.start();
+                          startStopRecordingButton.textContent = 'Stop Recording';
+                          recordingStatusDiv.textContent = 'Recording...';
+                          isRecording = true; // Update recording state
+                      })
+                      .catch(function (error) {
+                          console.error('Error accessing microphone:', error);
+                      });
+              } else {
+                  mediaRecorder.stop();
+                  startStopRecordingButton.textContent = 'Start Recording';
+                  isRecording = false; // Update recording state
+              }
+          });
+      
+          // JavaScript to handle saving audio data
+          const saveAudioButton = document.getElementById('save_audio');
+          saveAudioButton.addEventListener('click', () => {
+              // Implement logic to save the recorded audio data to your backend here
+              // You can use the audioDataInput.value to access the audio blob
+              // Send the audio data via an AJAX request or another suitable method
+          });
+      </script>
+{% endblock %}

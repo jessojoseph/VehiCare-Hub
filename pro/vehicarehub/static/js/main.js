@@ -64,3 +64,59 @@
     
 })(jQuery);
 
+// DOM elements
+const startRecordingButton = document.getElementById('start_stop_recording');
+const stopRecordingButton = document.getElementById('stop_recording');
+const audioPlayer = document.getElementById('audio-player');
+const recordingStatusDiv = document.getElementById('recording-status');
+const convertedTextDiv = document.getElementById('converted-text');
+
+// Audio recorder instance
+let audioRecorder;
+
+// Initialize the audio recorder
+startRecordingButton.addEventListener('click', () => {
+    if (!audioRecorder) {
+        audioRecorder = new Recorder({
+            onRecordingStart: () => {
+                recordingStatusDiv.textContent = 'Recording...';
+            },
+            onRecordingStop: (blob) => {
+                recordingStatusDiv.textContent = 'Recording stopped.';
+                audioPlayer.src = URL.createObjectURL(blob);
+                audioPlayer.style.display = 'block';
+
+                // Send the audio data to the server for transcription
+                sendAudioForTranscription(blob);
+            }
+        });
+
+        audioRecorder.start();
+        startRecordingButton.textContent = 'Stop Recording'; // Update button text
+        stopRecordingButton.style.display = 'inline-block'; // Show the stop button
+    } else {
+        // Stop recording
+        audioRecorder.stop();
+        startRecordingButton.textContent = 'Start Recording'; // Update button text
+        stopRecordingButton.style.display = 'none'; // Hide the stop button
+    }
+});
+
+// Function to send audio data to the server for transcription
+function sendAudioForTranscription(blob) {
+    const formData = new FormData();
+    formData.append('audio_data', blob);
+
+    fetch('/convert-audio-to-text', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Display the transcribed text
+        convertedTextDiv.textContent = 'Transcribed Text: ' + data.text;
+    })
+    .catch(error => {
+        console.error('Error transcribing audio:', error);
+    });
+}

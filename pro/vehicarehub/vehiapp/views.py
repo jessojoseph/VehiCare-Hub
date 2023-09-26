@@ -19,6 +19,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.db import transaction
 from django.db.models import Q
 from django.http import JsonResponse
+from django.shortcuts import render
 
 User = get_user_model()
 
@@ -560,6 +561,9 @@ from django.shortcuts import render
 from .models import Task, Worker
 from django.contrib.auth.decorators import login_required
 
+from django.shortcuts import get_object_or_404, redirect, render
+from .models import Task, AudioRecording  # Import the AudioRecording model
+
 @login_required
 def worker_dashboard_tasks(request):
     try:
@@ -572,3 +576,257 @@ def worker_dashboard_tasks(request):
     return render(request, 'worker/task.html', context)
 
 
+@login_required
+def work_overview(request):
+    try:
+        # Get the logged-in user
+        user = request.user
+
+        # Check if the user is a worker
+        try:
+            worker = Worker.objects.get(user=user)
+        except Worker.DoesNotExist:
+            worker = None
+
+        if worker:
+            # User is a worker, get counts and tasks for the worker
+            completed_tasks_count = Task.objects.filter(worker=worker, status='completed').count()
+            assigned_tasks_count = Task.objects.filter(worker=worker, status__in=['in_progress', 'pending']).count()
+            completed_tasks = Task.objects.filter(worker=worker, status='completed')
+            assigned_tasks = Task.objects.filter(worker=worker, status__in=['in_progress', 'pending'])
+        else:
+            # User is not a worker, initialize counts and tasks as empty
+            completed_tasks_count = 0
+            assigned_tasks_count = 0
+            completed_tasks = []
+            assigned_tasks = []
+
+        context = {
+            'completed_tasks_count': completed_tasks_count,
+            'assigned_tasks_count': assigned_tasks_count,
+            'completed_tasks': completed_tasks,
+            'assigned_tasks': assigned_tasks,
+        }
+        return render(request, 'worker/work_overview.html', context)
+    except CustomUser.DoesNotExist:
+        # Handle the case where the logged-in user does not exist
+        return render(request, 'worker/work_overview.html', {})
+
+
+from .models import LeaveRequest  # Import your LeaveRequest model
+from django.contrib import messages
+
+@login_required
+def leave_request(request):
+    try:
+        # Get the logged-in user
+        user = request.user
+
+        # Check if the user is associated with a Worker
+        try:
+            worker = Worker.objects.get(user=user)
+        except Worker.DoesNotExist:
+            worker = None
+
+        if worker:
+            if request.method == 'POST':
+                start_date = request.POST['start_date']
+                end_date = request.POST['end_date']
+                reason = request.POST['reason']
+                
+                # Create a LeaveRequest object and save it to the database
+                leave_request = LeaveRequest(
+                    worker=worker,
+                    start_date=start_date,
+                    end_date=end_date,
+                    reason=reason,
+                    status='pending'  # Set the default status here if needed
+                )
+                leave_request.save()
+
+                # Optionally, you can display a success message
+                messages.success(request, 'Leave request submitted successfully.')
+
+                return redirect('workerdashboard')  # Redirect to the worker dashboard or another appropriate page
+
+            return render(request, 'worker/leave_request.html')
+        else:
+            # Handle the case where the logged-in user is not associated with a Worker
+            messages.error(request, 'You must be a worker to apply for leave.')
+            return redirect('workerdashboard')  # Redirect to an appropriate page
+
+    except CustomUser.DoesNotExist:
+        # Handle the case where the logged-in user does not exist
+        return render(request, 'worker/leave_request.html', {})
+    
+
+def view_leavereq(request):
+    if request.method == 'POST':
+        # Handle the form submission for approving or rejecting leave requests
+        leave_request_id = request.POST.get('leave_request_id')
+        action = request.POST.get('action')  # 'approve' or 'reject'
+
+        try:
+            leave_request = LeaveRequest.objects.get(id=leave_request_id)
+            if action == 'approve':
+                leave_request.status = 'approved'
+            elif action == 'reject':
+                leave_request.status = 'rejected'
+            leave_request.save()
+
+            # Debug output to check if the view is being called
+            print(f"AJAX request received: {action} leave request {leave_request_id}")
+            
+            # Return a JSON response indicating success
+            return JsonResponse({'success': True})
+
+        except LeaveRequest.DoesNotExist:
+            # Handle if the leave request doesn't exist
+            pass
+
+    # Retrieve all leave requests for display
+    leave_requests = LeaveRequest.objects.all()
+
+    # Prepare a list of statuses for use in the template
+    statuses = ['approved', 'rejected']
+
+    context = {
+        'leave_requests': leave_requests,
+        'statuses': statuses,
+    }
+    return render(request, 'view_leavereq.html', context)
+
+
+def view_leavestat(request):
+    if request.user.is_authenticated:
+
+        worker = request.user  # Assuming this is the currently logged-in user
+        current_worker = Worker.objects.get(user=worker)  # Assuming you want to get the worker based on the user
+
+        leave_requests = LeaveRequest.objects.filter(worker=current_worker)
+        print(leave_requests)
+
+
+        context = {
+            'leave_requests': leave_requests,
+            'current_worker': current_worker,  # Pass the current worker to the template
+        }
+
+        return render(request, 'worker/view_leavestat.html', context)
+    else:
+        return render(request, 'worker/view_leavestat.html')
+
+# def update_work_status(request, task_id):
+#     task = get_object_or_404(Task, id=task_id)
+
+#     if request.method == 'POST':
+#         # Check if an audio file was uploaded
+#         if 'audio_file' in request.FILES:
+#             audio_file = request.FILES['audio_file']
+
+#             # Create a recognizer instance
+#             recognizer = sr.Recognizer()
+
+#             # Process the audio file
+#             with sr.AudioFile(audio_file) as source:
+#                 audio = recognizer.record(source)  # Record the audio from the file
+#                 try:
+#                     # Use Google Web Speech API to recognize the audio
+#                     text = recognizer.recognize_google(audio)
+#                     # Now 'text' contains the recognized text from the audio
+#                 except sr.UnknownValueError:
+#                     text = "Speech Recognition could not understand the audio"
+#                 except sr.RequestError as e:
+#                     text = f"Could not request results from Google Web Speech API; {e}"
+
+#                 # Save the transcription in your task model
+#                 task.audio_transcription = text
+
+#         # Update the other task fields with the new values
+#         new_status = request.POST.get('new_status').lower()
+#         work_done = request.POST.get('work_done')
+#         materials_used = request.POST.get('materials_used')
+#         additional_notes = request.POST.get('additional_notes')
+
+#         task.status = new_status
+#         task.work_done = work_done
+#         task.materials_used = materials_used
+#         task.additional_notes = additional_notes
+
+#         # Save the task object to update the database
+#         task.save()
+
+#         # Redirect to the worker dashboard or any other appropriate page
+#         return redirect('workerdashboard')
+
+#     context = {'task': task}
+#     return render(request, 'worker/update_work_status.html', context)
+
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Task, Worker, Appointment
+
+def update_work_status(request, task_id):
+    task = get_object_or_404(Task, id=task_id)
+
+    if request.method == 'POST':
+        new_status = request.POST.get('new_status')
+        work_done = request.POST.get('work_done')
+        materials_used = request.POST.get('materials_used')
+        additional_notes = request.POST.get('additional_notes')
+        audio_data = request.FILES.get('audio_data')
+
+        task.status = new_status
+        task.work_done = work_done
+        task.materials_used = materials_used
+        task.additional_notes = additional_notes
+
+        # Check if audio_data is provided and save it to the database
+        if audio_data:
+            task.audio_file.save(audio_data.name, audio_data)
+
+        task.save()
+
+        # Check if the task is marked as completed
+        if new_status == 'completed':
+            # Get the worker associated with the task
+            worker = task.worker
+
+            # Mark the worker as available for other jobs
+            worker.is_available = True
+            worker.save()
+
+        return redirect('workerdashboard')
+
+    return render(request, 'worker/update_work_status.html', {'task': task})
+
+
+from .models import Task, CustomUser, Appointment
+
+@login_required
+def view_updates(request):
+    user = request.user  # Get the currently logged-in user
+    
+    # Check if the user is an admin (you can modify this condition based on your admin role criteria)
+    is_admin = user.is_superuser
+
+    appointments = None
+    selected_appointment = None
+
+    if is_admin:
+        # Fetch all appointments for the admin
+        appointments = Appointment.objects.all()
+
+        # Check if a specific appointment is selected from the form
+        if request.method == 'POST':
+            appointment_id = request.POST.get('appointment')
+            if appointment_id:
+                selected_appointment = Appointment.objects.get(id=appointment_id)
+    else:
+        # For regular users, restrict them to only view their own updates
+        appointments = Appointment.objects.filter(user_name=user)
+        selected_appointment = appointments.first()  # Display the first appointment by default
+
+    tasks = Task.objects.filter(appointment=selected_appointment)
+
+    context = {'appointments': appointments, 'tasks': tasks, 'selected_appointment': selected_appointment, 'is_admin': is_admin}
+    return render(request, 'view_updates.html', context)

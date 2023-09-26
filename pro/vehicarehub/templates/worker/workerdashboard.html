@@ -64,10 +64,11 @@
                 <!-- Sidebar Menu -->
                 <ul class="sidebar-menu" data-widget="tree">
                     <!-- Optionally add your sidebar navigation items here -->
-                    <li class="active"><a href="#"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
+                    <li><a href="{% url 'work_overview' %}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
                     <li><a href="{% url 'worker_dashboard_tasks' %}"><i class="fa fa-tasks"></i> <span>Tasks</span></a></li>
-                    <li><a href="#"><i class="fa fa-tasks"></i> <span>New Bookings</span></a></li>
-                    <li><a href="#"><i class="fa fa-tasks"></i> <span>Apply Leave</span></a></li>
+                    <li><a href="{% url 'leave_request' %}"><i class="fa fa-tasks"></i> <span>Apply Leave</span></a></li>
+                    <li><a href="{% url 'view_leavestat' %}"><i class="fa fa-tasks"></i> <span>Leave Status</span></a></li>
+
 
                 </ul>
                 <!-- /.sidebar-menu -->

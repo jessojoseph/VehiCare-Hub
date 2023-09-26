@@ -1,0 +1,35 @@
+{% extends 'basew.html' %}
+
+{% block title %}Leave Requests{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">Leave Requests</h2>
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Reason</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for leave_request in leave_requests %}
+                <tr>
+                    <td>{{ leave_request.start_date }}</td>
+                    <td>{{ leave_request.end_date }}</td>
+                    <td>{{ leave_request.reason }}</td>
+                    <td style="color: {% if leave_request.status == 'approved' %}green{% elif leave_request.status == 'rejected' %}red{% else %}black{% endif %}">
+                        {{ leave_request.status }}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">No leave requests.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

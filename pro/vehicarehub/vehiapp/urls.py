@@ -34,12 +34,19 @@ urlpatterns = [
     path('worker_details/', views.worker_details, name='worker_details'),
     path('editworker/', views.editworker, name='editworker'), 
     path('viewservice/<int:view_id>', views.view_service, name='viewservice'),
+    
 
 
     path('assign_task', views.assign_task, name='assign_task'), 
     path('workerdashboard/task/', views.worker_dashboard_tasks, name='worker_dashboard_tasks'),
+    path('worker/update_work_status/<int:task_id>/', views.update_work_status, name='update_work_status'),
+    path('view_updates/', views.view_updates, name='view_updates'),
+    path('work_overview/', views.work_overview, name='work_overview'),
+    path('leave_request/', views.leave_request, name='leave_request'),
+    path('view_leavereq/', views.view_leavereq, name='view_leavereq'),
+    path('view_leavestat/', views.view_leavestat, name='view_leavestat'),
 
- 
+
 
 
  
@@ -49,3 +56,4 @@ urlpatterns = [
     path('reset/done/',auth_views.PasswordResetCompleteView.as_view(),name='password_reset_complete'),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

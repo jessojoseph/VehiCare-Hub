@@ -1,0 +1,81 @@
+{% extends 'basew.html' %}
+
+{% block title %}Worker Work Overview{% endblock %}
+
+{% block content %}
+<style>
+    /* Custom CSS styles for the "Completed Tasks" section */
+    .custom-alert-success {
+        background-color: #28a745; /* Green background for completed tasks */
+        color: #fff; /* White text color */
+        border-color: #28a745; /* Border color */
+        padding: 10px; /* Add padding for spacing */
+        margin-bottom: 20px; /* Add margin for spacing between sections */
+    }
+
+    /* Custom CSS styles for the "Assigned Tasks" section */
+    .custom-alert-info {
+        background-color: #17a2b8; /* Blue background for assigned tasks */
+        color: #fff; /* White text color */
+        border-color: #17a2b8; /* Border color */
+        padding: 10px; /* Add padding for spacing */
+        margin-bottom: 20px; /* Add margin for spacing between sections */
+    }
+
+    /* Style the heading elements within the sections */
+    .custom-alert h2 {
+        margin-bottom: 10px; /* Add margin for spacing between heading and content */
+    }
+
+    .custom-alert h5 {
+        margin-top: 0; /* Remove default margin for consistency */
+    }
+</style>
+    {% comment %} <h1 class="text-center mb-4">Worker Work Overview</h1> {% endcomment %}
+
+    <div class="alert alert-success">
+        <p><strong>Completed Tasks:</strong> {{ completed_tasks_count }}</p>
+    </div>
+
+    <div class="alert alert-info">
+        <p><strong>Assigned Tasks:</strong> {{ assigned_tasks_count }}</p>
+    </div>
+    <h1 class="text-center mb-4">Worker Work Overview</h1>
+
+    <!-- Completed Tasks -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="custom-alert custom-alert-success">
+                <h2>Completed Tasks</h2>
+                {% for task in completed_tasks %}
+                    <div class="custom-alert custom-alert-success">
+                        <h5>{{ task.title }}</h5>
+                        <p>{{ task.description }}</p>
+                        <!-- Add more content as needed -->
+                    </div>
+                {% empty %}
+                    <p>No completed tasks.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Assigned Tasks -->
+        <div class="col-md-6">
+            <div class="custom-alert custom-alert-info">
+                <h2>Assigned Tasks</h2>
+                {% for task in assigned_tasks %}
+                    <div class="custom-alert custom-alert-info">
+                        <h5>{{ task.title }}</h5>
+                        <p>{{ task.description }}</p>
+                        <!-- Add more content as needed -->
+                    </div>
+                {% empty %}
+                    <p>No assigned tasks.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    </table>
+
+    <!-- Rest of your content goes here -->
+{% endblock %}

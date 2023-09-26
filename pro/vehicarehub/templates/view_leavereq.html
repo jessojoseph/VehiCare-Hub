@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Leave Requests{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">Leave Requests</h2>
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Worker</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for leave_request in leave_requests %}
+                <tr>
+                    <td>{{ leave_request.worker.user.username }}</td>
+                    <td>{{ leave_request.start_date }}</td>
+                    <td>{{ leave_request.end_date }}</td>
+                    <td>{{ leave_request.reason }}</td>
+                    <td>
+                        <span id="status-{{ leave_request.id }}" class="badge {% if leave_request.status == 'approved' %}bg-success{% elif leave_request.status == 'rejected' %}bg-danger{% endif %}">
+                            {{ leave_request.status }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if leave_request.status != "approved" and leave_request.status != "rejected" %}
+                            <button type="button" onclick="confirmAction('{{ leave_request.id }}', 'approve')" class="btn btn-success">Approve</button>
+                            <button type="button" onclick="confirmAction('{{ leave_request.id }}', 'reject')" class="btn btn-danger">Reject</button>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6">No leave requests.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmationModalLabel">Confirm Action</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to perform this action?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="confirmActionButton" class="btn btn-primary">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let leaveRequestId;
+    let actionType;
+
+    function confirmAction(id, action) {
+        leaveRequestId = id;
+        actionType = action;
+        const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+        confirmationModal.show();
+    }
+
+    document.getElementById('confirmActionButton').addEventListener('click', () => {
+        if (leaveRequestId && actionType) {
+            approveOrReject(leaveRequestId, actionType);
+        }
+    });
+
+    function approveOrReject(leaveRequestId, action) {
+        // Create a new FormData object to send data to the server
+        const formData = new FormData();
+        formData.append('leave_request_id', leaveRequestId);
+        formData.append('action', action);
+
+        // Send an AJAX POST request to your Django view
+        fetch('/view_leavereq/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'), // Include CSRF token
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Optionally, you can perform actions after a successful request here.
+
+                // Reload the page or navigate back (you can choose one of these options)
+                window.location.reload(); // Reload the page
+                // window.history.back(); // Navigate back
+
+            } else {
+                // Handle any error messages here
+                console.error(data.error);
+            }
+        })
+        .catch(error => {
+            console.error(error);
+        });
+    }
+
+    // Function to get CSRF token from cookies (you can use this code as-is)
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+</script>
+
+
+{% endblock %}

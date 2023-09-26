@@ -10,6 +10,8 @@
     <!-- Include AdminLTE CSS and plugins -->
     <link rel="stylesheet" href="https://adminlte.io/themes/AdminLTE/dist/css/AdminLTE.min.css">
     <link rel="stylesheet" href="https://adminlte.io/themes/AdminLTE/dist/css/skins/skin-blue.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ4Ck9b6T5f5" crossorigin="anonymous">
+
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
     <div class="wrapper">
@@ -64,10 +66,11 @@
                 <!-- Sidebar Menu -->
                 <ul class="sidebar-menu" data-widget="tree">
                     <!-- Optionally add your sidebar navigation items here -->
-                    <li><a href="{% url 'workerdashboard' %}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
-                    <li><a href="{% url 'worker_dashboard_tasks' %}"><i class="fa fa-tasks"></i> <span>Tasks</span></a></li>workerdashboard
-                    <li><a href="#"><i class="fa fa-tasks"></i> <span>New Bookings</span></a></li>
-                    <li><a href="#"><i class="fa fa-tasks"></i> <span>Apply Leave</span></a></li>
+                    <li><a href="{% url 'work_overview' %}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
+                    <li><a href="{% url 'worker_dashboard_tasks' %}"><i class="fa fa-tasks"></i> <span>Tasks</span></a></li>
+                    <li><a href="{% url 'leave_request' %}"><i class="fa fa-tasks"></i> <span>Apply Leave</span></a></li>
+                    <li><a href="{% url 'view_leavestat' %}"><i class="fa fa-tasks"></i> <span>Leave Status</span></a></li>
+
 
                 </ul>
                 <!-- /.sidebar-menu -->

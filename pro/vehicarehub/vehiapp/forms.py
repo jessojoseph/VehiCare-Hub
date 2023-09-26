@@ -34,5 +34,3 @@ class TaskAssignmentForm(forms.ModelForm):
         # For example, you can filter worker choices based on availability or specialization.
         self.fields['worker'].queryset = Worker.objects.filter(is_available=True)  # Filter available workers
 
-
-
