@@ -75,53 +75,85 @@ def search_services(request):
 
     return JsonResponse({'services': services_data})
 
-from datetime import datetime, timedelta
+
+from django.db.models import Count
+from django.db.models.functions import ExtractDay
 
 @login_required
 def book_appointment(request):
     if request.method == 'POST':
         form = AppointmentForm(request.POST)
         if form.is_valid():
-            with transaction.atomic():
-                # Check if there are already 7 appointments for the selected service_date
-                service_date = form.cleaned_data['service_date']
-                existing_appointments_count = Appointment.objects.filter(
-                    service_date=service_date
-                ).count()
-
-                if existing_appointments_count >= 7:
-                    return render(request, 'book_appointment.html', {'form': form, 'error_message': 'No more slots available for this date.'})
-
+            user = request.user
+            service_date = form.cleaned_data['service_date']
+            
+            # Check if the user has an active booking (appointment_status='Scheduled')
+            has_active_booking = Appointment.objects.filter(user_name=user, appointment_status='Scheduled').exists()
+            
+            if has_active_booking:
+                # If the user has an active booking, show a warning
+                return render(request, 'book_appointment.html', {'form': form, 'service_types': Service.objects.all(), 'has_active_booking': True})
+            
+            # Check if the user already has a booking for the selected date
+            existing_booking = Appointment.objects.filter(user_name=user, service_date=service_date).exists()
+            
+            if existing_booking:
+                # If the user already has a booking for the selected date, show a warning
+                return render(request, 'book_appointment.html', {'form': form, 'service_types': Service.objects.all(), 'existing_booking': True})
+            
+            # Check if the maximum limit (9 appointments) is reached for the selected date
+            appointments_count = (
+                Appointment.objects
+                .filter(service_date=service_date)
+                .annotate(day=ExtractDay('service_date'))
+                .values('day')
+                .annotate(count=Count('id'))
+                .order_by('day')
+            )
+            
+            if not appointments_count:
+                # No appointments on the selected date, so it's okay to book
                 appointment = form.save(commit=False)
-                appointment.user_name = request.user
+                appointment.user_name = user
                 appointment.save()
-
                 return redirect('confirmation')
+            else:
+                # Check if the count for the selected date is less than 9
+                if appointments_count[0]['count'] < 9:
+                    # If the limit is not reached, book the appointment
+                    appointment = form.save(commit=False)
+                    appointment.user_name = user
+                    appointment.save()
+                    return redirect('confirmation')
+                else:
+                    # If the limit is reached, show a warning
+                    return render(request, 'book_appointment.html', {'form': form, 'service_types': Service.objects.all(), 'appointment_limit_reached': True})
     else:
         form = AppointmentForm()
-
-    # Generate 7 equal time slots starting from 9:00 AM
-    base_time = datetime.strptime('09:00', '%H:%M')
-    time_slots = [(base_time + timedelta(hours=i)).strftime('%H:%M') for i in range(7)]
 
     # Get service types from the Service model
     service_types = Service.objects.all()
 
-    return render(request, 'book_appointment.html', {'form': form, 'time_slots': time_slots, 'service_types': service_types})
+    context = {
+        'form': form,
+        'service_types': service_types,
+    }
+
+    return render(request, 'book_appointment.html', context)
+
 
 
 @login_required
 def viewappointment(request):
     if request.user.is_staff:
-        # Admin user can view all appointments
-        appointments = Appointment.objects.all()
+        # Admin user can view all appointments, sorted by service_date (ascending)
+        appointments = Appointment.objects.all().order_by('service_date')
     else:
-        # Regular user can only view their own appointments
-        appointments = Appointment.objects.filter(user_name=request.user)
+        # Regular user can only view their own appointments, sorted by service_date (ascending)
+        appointments = Appointment.objects.filter(user_name=request.user).order_by('service_date')
     
     context = {'appointments': appointments}
     return render(request, 'viewappointments.html', context)
-
 
 def cancel_appointment(request, appointment_id):
     appointment = get_object_or_404(Appointment, pk=appointment_id)
@@ -359,8 +391,6 @@ User = get_user_model()
 import logging
 
 logger = logging.getLogger(__name__)
-
-@login_required
 def addWorker(request):
     if request.method == 'POST':
         # Get data from the form
@@ -370,13 +400,13 @@ def addWorker(request):
 
         # Check if the email already exists
         if User.objects.filter(email=email).exists():
-            msg = 'Email already exists. Please use a different email address.'
+            messages.error(request, 'Email already exists. Please use a different email address.')
         else:
             # Create a new user
             user = User.objects.create(username=username, email=email)
             user.set_password(password)
             user.is_active = True
-            user.role=CustomUser.WORKER
+            user.role = CustomUser.WORKER
             user.save()
 
             logger.info(f"User {username} created successfully.")
@@ -388,15 +418,12 @@ def addWorker(request):
             worker = Worker(user=user)
             worker.save()
 
-
             # Create a UserProfile
             user_profile = UserProfile(user=user)
             user_profile.save()
 
-            context = {
-                 'user': user
-    }
-            return redirect('addworker')  # Replace 'adminindex' with your desired URL
+            messages.success(request, 'Worker created successfully.')
+            return redirect('addworker')  # Replace 'addworker' with your desired URL
 
     # For GET requests or when the form is invalid, render the form
     return render(request, 'addworker.html')
@@ -716,51 +743,6 @@ def view_leavestat(request):
     else:
         return render(request, 'worker/view_leavestat.html')
 
-# def update_work_status(request, task_id):
-#     task = get_object_or_404(Task, id=task_id)
-
-#     if request.method == 'POST':
-#         # Check if an audio file was uploaded
-#         if 'audio_file' in request.FILES:
-#             audio_file = request.FILES['audio_file']
-
-#             # Create a recognizer instance
-#             recognizer = sr.Recognizer()
-
-#             # Process the audio file
-#             with sr.AudioFile(audio_file) as source:
-#                 audio = recognizer.record(source)  # Record the audio from the file
-#                 try:
-#                     # Use Google Web Speech API to recognize the audio
-#                     text = recognizer.recognize_google(audio)
-#                     # Now 'text' contains the recognized text from the audio
-#                 except sr.UnknownValueError:
-#                     text = "Speech Recognition could not understand the audio"
-#                 except sr.RequestError as e:
-#                     text = f"Could not request results from Google Web Speech API; {e}"
-
-#                 # Save the transcription in your task model
-#                 task.audio_transcription = text
-
-#         # Update the other task fields with the new values
-#         new_status = request.POST.get('new_status').lower()
-#         work_done = request.POST.get('work_done')
-#         materials_used = request.POST.get('materials_used')
-#         additional_notes = request.POST.get('additional_notes')
-
-#         task.status = new_status
-#         task.work_done = work_done
-#         task.materials_used = materials_used
-#         task.additional_notes = additional_notes
-
-#         # Save the task object to update the database
-#         task.save()
-
-#         # Redirect to the worker dashboard or any other appropriate page
-#         return redirect('workerdashboard')
-
-#     context = {'task': task}
-#     return render(request, 'worker/update_work_status.html', context)
 
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Task, Worker, Appointment
@@ -794,6 +776,11 @@ def update_work_status(request, task_id):
             # Mark the worker as available for other jobs
             worker.is_available = True
             worker.save()
+
+             # Update the appointment status associated with this task
+            appointment = task.appointment
+            appointment.appointment_status = 'Completed'
+            appointment.save()
 
         return redirect('workerdashboard')
 
@@ -830,3 +817,6 @@ def view_updates(request):
 
     context = {'appointments': appointments, 'tasks': tasks, 'selected_appointment': selected_appointment, 'is_admin': is_admin}
     return render(request, 'view_updates.html', context)
+
+
+

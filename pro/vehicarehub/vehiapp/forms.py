@@ -14,14 +14,15 @@ class ServiceForm(forms.ModelForm):
             'service_image': forms.FileInput(attrs={'class': 'form-control'}),
         }
 
+
 class AppointmentForm(forms.ModelForm):
     class Meta:
         model = Appointment
-        fields = ['vehicle_model', 'build_year', 'engine_number', 'chassis_number', 'registration_number', 'service_date', 'service_time', 'service_type']
+        fields = ['vehicle_model', 'service_date', 'service_type', 'registration_number']
         widgets = {
             'service_date': forms.DateInput(attrs={'type': 'date'}),
-            'service_time': forms.TimeInput(attrs={'type': 'time'}),
         }
+
 
 class TaskAssignmentForm(forms.ModelForm):
     class Meta:

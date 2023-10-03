@@ -11,7 +11,7 @@
             <tr>
                 <th>User</th>
                 <th>Date</th>
-                <th>Time Slot</th>
+                {% comment %} <th>Time Slot</th> {% endcomment %}
                 <th>Status</th>
                 <th>Action</th>
                 <!-- Add other appointment fields as needed -->
@@ -22,7 +22,7 @@
             <tr>
                 <td>{{ appointment.user_name }}</td>
                 <td>{{ appointment.service_date }}</td>
-                <td>{{ appointment.service_time }}</td>
+                {% comment %} <td>{{ appointment.service_time }}</td> {% endcomment %}
                 <td>{{ appointment.appointment_status }}</td>
                 <td>
                     {% if request.user.is_authenticated and not request.user.is_staff %}

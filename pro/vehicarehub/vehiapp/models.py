@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils import timezone
 from django.db import models
-
+from datetime import time
 
 current_datetime = timezone.now()
 
@@ -107,18 +107,16 @@ class Slot(models.Model):
 
 class Appointment(models.Model):
     user_name = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    vehicle_model = models.CharField(max_length=100, default='Yamaha')
-    build_year = models.IntegerField(default=2023)
-    engine_number = models.CharField(max_length=100, default='')
-    chassis_number = models.CharField(max_length=100, default='')
-    registration_number = models.CharField(max_length=100, default='')
+    vehicle_model = models.CharField(max_length=100)
     service_date = models.DateField()
-    service_time = models.TimeField()
+    service_time = models.TimeField(default=time(0, 0, 0))
     service_type = models.ForeignKey(Service, on_delete=models.CASCADE, null=True)
-    appointment_status = models.CharField(max_length=50, default='Scheduled')  # Add the 'appointment_status' field
+    registration_number = models.CharField(max_length=100)
+
+    appointment_status = models.CharField(max_length=50, default='Scheduled')
 
     def __str__(self):
-        return f"{self.user_name}'s Appointment on {self.service_date} at {self.service_time}"
+        return f"{self.user_name}'s Appointment on {self.service_date} for {self.vehicle_model}"
 
 
 
@@ -159,3 +157,42 @@ class LeaveRequest(models.Model):
     def __str__(self):
         return f"{self.worker.user.username}'s Leave Request"
 
+
+
+
+
+class Payment(models.Model):
+    class PaymentStatusChoices(models.TextChoices):
+        PENDING = 'pending', 'Pending'
+        SUCCESSFUL = 'successful', 'Successful'
+        FAILED = 'failed', 'Failed'
+    
+
+        
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # Link the payment to a user
+    razorpay_order_id = models.CharField(max_length=255)  # Razorpay order ID
+    payment_id = models.CharField(max_length=255)  # Razorpay payment ID
+    amount = models.DecimalField(max_digits=8, decimal_places=2)  # Amount paid
+    currency = models.CharField(max_length=5)  # Currency code (e.g., "INR")
+    timestamp = models.DateTimeField(auto_now_add=True)  # Timestamp of the payment
+    payment_status = models.CharField(max_length=20, choices=PaymentStatusChoices.choices, default=PaymentStatusChoices.PENDING)
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE)
+
+
+    def str(self):
+        return f"Payment for {self.appointment}"
+
+
+
+    class Meta:
+        ordering = ['-timestamp']
+
+#Update Status not implemented
+    def update_status(self):
+        # Calculate the time difference in minutes
+        time_difference = (timezone.now() - self.timestamp).total_seconds() / 60
+
+        if self.payment_status == self.PaymentStatusChoices.PENDING and time_difference > 1:
+            # Update the status to "Failed"
+            self.payment_status = self.PaymentStatusChoices.FAILED
+            self.save()
