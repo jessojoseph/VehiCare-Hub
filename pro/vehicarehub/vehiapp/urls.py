@@ -34,7 +34,8 @@ urlpatterns = [
     path('worker_details/', views.worker_details, name='worker_details'),
     path('editworker/', views.editworker, name='editworker'), 
     path('viewservice/<int:view_id>', views.view_service, name='viewservice'),
-    
+    path('admindash/', views.admindash, name='admindash'), 
+
 
 
     path('assign_task', views.assign_task, name='assign_task'), 
@@ -45,7 +46,8 @@ urlpatterns = [
     path('leave_request/', views.leave_request, name='leave_request'),
     path('view_leavereq/', views.view_leavereq, name='view_leavereq'),
     path('view_leavestat/', views.view_leavestat, name='view_leavestat'),
-
+    path('payment/<int:appointment_id>/', views.payment, name='payment'),
+    path('paymenthandler/<int:appointment_id>/', views.paymenthandler, name='paymenthandler'),
 
 
 

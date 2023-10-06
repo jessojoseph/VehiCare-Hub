@@ -78,6 +78,87 @@ def search_services(request):
 
 from django.db.models import Count
 from django.db.models.functions import ExtractDay
+from .models import Appointment, Service, Payment  # Import your models
+from .models import Appointment, Service, Payment  # Import your models
+from .models import Appointment, Service, Payment  # Import your models
+
+# @login_required
+# def book_appointment(request):
+#     if request.method == 'POST':
+#         form = AppointmentForm(request.POST)
+#         if form.is_valid():
+#             user = request.user
+#             service_date = form.cleaned_data['service_date']
+            
+#             # Check if the user has an active booking (appointment_status='Scheduled')
+#             has_active_booking = Appointment.objects.filter(user_name=user, appointment_status='Scheduled').exists()
+            
+#             if has_active_booking:
+#                 # If the user has an active booking, show a warning
+#                 return render(request, 'book_appointment.html', {'form': form, 'service_types': Service.objects.all(), 'has_active_booking': True})
+            
+#             # Check if the user already has a booking for the selected date
+#             existing_booking = Appointment.objects.filter(user_name=user, service_date=service_date).exists()
+            
+#             if existing_booking:
+#                 # If the user already has a booking for the selected date, show a warning
+#                 return render(request, 'book_appointment.html', {'form': form, 'service_types': Service.objects.all(), 'existing_booking': True})
+            
+#             # Check if the maximum limit (9 appointments) is reached for the selected date
+#             appointments_count = (
+#                 Appointment.objects
+#                 .filter(service_date=service_date)
+#                 .annotate(day=ExtractDay('service_date'))
+#                 .values('day')
+#                 .annotate(count=Count('id'))
+#                 .order_by('day')
+#             )
+            
+#             if not appointments_count:
+#                 # No appointments on the selected date, so it's okay to book
+#                 appointment = form.save(commit=False)
+#                 appointment.user_name = user
+#                 appointment.save()
+                
+#                 # Create a Payment record (assuming you have a Payment model)
+
+#                 # Redirect the user to the pay.html page to collect payment
+#                 return redirect('payment', appointment_id=appointment.id)
+                
+#             else:
+#                 # Check if the count for the selected date is less than 9
+#                 if appointments_count[0]['count'] < 9:
+#                     # If the limit is not reached, book the appointment
+#                     appointment = form.save(commit=False)
+#                     appointment.user_name = user
+#                     appointment.save()
+
+#                     # Redirect the user to the pay.html page to collect payment
+#                     return redirect('pay', appointment_id=appointment.id)
+#                 else:
+#                     # If the limit is reached, show a warning
+#                     return render(request, 'book_appointment.html', {'form': form, 'service_types': Service.objects.all(), 'appointment_limit_reached': True})
+#     else:
+#         form = AppointmentForm()
+
+#     # Get service types from the Service model
+#     service_types = Service.objects.all()
+
+#     context = {
+#         'form': form,
+#         'service_types': service_types,
+#     }
+
+#     return render(request, 'book_appointment.html', context)
+
+
+from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
+from django.shortcuts import render, redirect
+from .models import Appointment
+from .forms import AppointmentForm
+from django.db.models import Count
+from django.db.models.functions import ExtractDay
 
 @login_required
 def book_appointment(request):
@@ -91,7 +172,7 @@ def book_appointment(request):
             has_active_booking = Appointment.objects.filter(user_name=user, appointment_status='Scheduled').exists()
             
             if has_active_booking:
-                # If the user has an active booking, show a warning
+                # If the user has an active booking, trigger the modal
                 return render(request, 'book_appointment.html', {'form': form, 'service_types': Service.objects.all(), 'has_active_booking': True})
             
             # Check if the user already has a booking for the selected date
@@ -116,7 +197,15 @@ def book_appointment(request):
                 appointment = form.save(commit=False)
                 appointment.user_name = user
                 appointment.save()
-                return redirect('confirmation')
+                
+                # Send a confirmation email to the user
+                send_appointment_confirmation_email(user.email, appointment)
+
+                # Create a Payment record (assuming you have a Payment model)
+
+                # Redirect the user to the pay.html page to collect payment
+                return redirect('payment', appointment_id=appointment.id)
+                
             else:
                 # Check if the count for the selected date is less than 9
                 if appointments_count[0]['count'] < 9:
@@ -124,7 +213,12 @@ def book_appointment(request):
                     appointment = form.save(commit=False)
                     appointment.user_name = user
                     appointment.save()
-                    return redirect('confirmation')
+
+                    # Send a confirmation email to the user
+                    send_appointment_confirmation_email(user.email, appointment)
+
+                    # Redirect the user to the pay.html page to collect payment
+                    return redirect('pay', appointment_id=appointment.id)
                 else:
                     # If the limit is reached, show a warning
                     return render(request, 'book_appointment.html', {'form': form, 'service_types': Service.objects.all(), 'appointment_limit_reached': True})
@@ -141,6 +235,17 @@ def book_appointment(request):
 
     return render(request, 'book_appointment.html', context)
 
+def send_appointment_confirmation_email(email, appointment):
+    subject = 'Appointment Confirmation'
+    message = f"Hello,\n\n"
+    message += f"Welcome to VehiCare Hub\n\n"
+    message = f'Your appointment for the vehicle {appointment.registration_number} on {appointment.service_date} has been successfully scheduled.'
+    message += f'Thank you for choosing our services!\n\n'
+    message += f'Best regards,\nThe VehiCare Hub Team'
+    from_email = 'jessojoseph2024@mca.ajce.in'  # Replace with your email
+    recipient_list = [email]
+
+    send_mail(subject, message, from_email, recipient_list)
 
 
 @login_required
@@ -378,6 +483,8 @@ def change_password(request):
 def workerdashboard(request):
     return render(request, 'worker/workerdashboard.html')
 
+def admindash(request):
+    return render(request, 'admindash.html')
 
 
 from django.shortcuts import render, redirect
@@ -818,5 +925,110 @@ def view_updates(request):
     context = {'appointments': appointments, 'tasks': tasks, 'selected_appointment': selected_appointment, 'is_admin': is_admin}
     return render(request, 'view_updates.html', context)
 
+
+
+# View for handling payment callbacks
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse, HttpResponseBadRequest
+from django.urls import reverse
+from django.conf import settings
+from .models import Payment, Appointment  # Import your models
+import razorpay
+from django.views.decorators.csrf import csrf_exempt
+from django.core import signing
+import hmac, hashlib
+
+
+
+# Initialize the Razorpay client
+razorpay_client = razorpay.Client(
+    auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET)
+)
+
+
+
+
+# View for initiating a payment
+def payment(request, appointment_id):
+    # Retrieve the current appointment
+    current_appointment = get_object_or_404(Appointment, pk=appointment_id)
+
+    # For Razorpay integration
+    currency = 'INR'
+    amount = 150  # Get the subscription price
+    amount_in_paise = int(amount * 100)  # Convert to paise
+
+    # Create a Razorpay Order
+    razorpay_order = razorpay_client.order.create(dict(
+        amount=amount_in_paise,
+        currency=currency,
+        payment_capture='0'
+    ))
+
+    # Order ID of the newly created order
+    razorpay_order_id = razorpay_order['id']
+    callback_url = reverse('paymenthandler', args=[appointment_id])  # Define your callback URL here
+
+    # Create a Payment record
+    payment = Payment.objects.create(
+        user=request.user,
+        razorpay_order_id=razorpay_order_id,
+        payment_id="",  # You can update this later
+        amount=amount,
+        currency=currency,
+        payment_status=Payment.PaymentStatusChoices.PENDING,
+        appointment=current_appointment
+    )
+    payment.save()
+
+    # Prepare the context data
+    context = {
+        'user': request.user,
+        'appointment': current_appointment,
+        'razorpay_order_id': razorpay_order_id,
+        'razorpay_merchant_key': settings.RAZOR_KEY_ID,
+        'razorpay_amount': amount_in_paise,
+        'currency': currency,
+        'amount': amount_in_paise / 100,
+        'callback_url': callback_url,
+    }
+
+    return render(request, 'pay.html', context)
+
+@csrf_exempt
+def paymenthandler(request, appointment_id):
+    if request.method == "POST":
+        payment_id = request.POST.get('razorpay_payment_id', '')
+        razorpay_order_id = request.POST.get('razorpay_order_id', '')
+        signature = request.POST.get('razorpay_signature', '')
+
+        # Verify the payment signature using Razorpay's verify_payment_signature function
+        result = razorpay_client.utility.verify_payment_signature({
+            'razorpay_order_id': razorpay_order_id,
+            'razorpay_payment_id': payment_id,
+            'razorpay_signature': signature
+        })
+
+
+        # Payment signature is valid
+        payment = Payment.objects.get(razorpay_order_id=razorpay_order_id)
+        amount = int(payment.amount * 100)  # Convert Decimal to paise
+
+        # Capture the payment
+        razorpay_client.payment.capture(payment_id, amount)
+
+        # Update the payment status
+        payment.payment_id = payment_id
+        payment.payment_status = Payment.PaymentStatusChoices.SUCCESSFUL
+        payment.save()
+
+        update_appointment = Appointment.objects.get(id=appointment_id)
+        update_appointment.status = 'pending'
+        update_appointment.save()
+
+        # Redirect to the confirmation page upon successful payment
+        return render(request, 'confirmation.html', {'appointment': update_appointment})
+
+    return HttpResponseBadRequest()
 
 

@@ -5,18 +5,24 @@
 {% block content %}
     <h1>Appointment Confirmation</h1>
     
-    {% comment %} <h2>Your Appointment Details:</h2>
+    <h2>Your Appointment Details:</h2>
     <ul>
         <li><strong>Appointment ID:</strong> {{ appointment.id }}</li>
         <li><strong>Name:</strong> {{ appointment.user_name }}</li>
         <li><strong>Email:</strong> {{ appointment.user_name.email }}</li>
         <li><strong>Date:</strong> {{ appointment.service_date }}</li>
-        <li><strong>Time:</strong> {{ appointment.service_time }}</li>
+        {% comment %} <li><strong>Time:</strong> {{ appointment.service_time }}</li> {% endcomment %}
         <li><strong>Service:</strong> {{ appointment.service_type.service_name }}</li>
-    </ul> {% endcomment %}
+        {% comment %} <li><strong>Payment Amount:</strong> ${{ payment.payment_id }}</li>
+        <li><strong>Cash Collected:</strong> ${{ payment.amount }}</li> {% endcomment %}
+    </ul>
     
-    <p>Thank you for booking an appointment with us. We look forward to seeing you!</p>
+    <p>Thank you for booking an appointment with us. Your payment has been successfully received.</p>
     
+    {% comment %} <p>If you would like to download a bill for your appointment, you can do so below:</p>
+    
+    <a href="{% url 'bill_template' appointment.id %}" class="btn btn-primary">Download Bill</a>
+     {% endcomment %}
     <p>If you have any questions or need to make changes to your appointment, please contact us at <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>
     
     <p><a href="{% url 'book_appointment' %}">Return to Appointment</a></p>

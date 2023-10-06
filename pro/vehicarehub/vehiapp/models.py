@@ -182,8 +182,6 @@ class Payment(models.Model):
     def str(self):
         return f"Payment for {self.appointment}"
 
-
-
     class Meta:
         ordering = ['-timestamp']
 

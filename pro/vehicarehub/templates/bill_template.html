@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Appointment Bill</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .bill-details {
+            margin-top: 30px;
+        }
+        .bill-details table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .bill-details th, .bill-details td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Appointment Bill</h1>
+        </div>
+        <div class="bill-details">
+            <table>
+                <tr>
+                    <th>Appointment ID</th>
+                    <td>{{ appointment.id }}</td>
+                </tr>
+                <tr>
+                    <th>Name</th>
+                    <td>{{ appointment.user_name }}</td>
+                </tr>
+                <tr>
+                    <th>Email</th>
+                    <td>{{ appointment.user_name.email }}</td>
+                </tr>
+                <tr>
+                    <th>Date</th>
+                    <td>{{ appointment.service_date }}</td>
+                </tr>
+                <tr>
+                    <th>Time</th>
+                    <td>{{ appointment.service_time }}</td>
+                </tr>
+                <tr>
+                    <th>Service</th>
+                    <td>{{ appointment.service_type.service_name }}</td>
+                </tr>
+                <tr>
+                    <th>Total Amount</th>
+                    <td>{{ appointment.total_amount }}</td>
+                </tr>
+                <tr>
+                    <th>Cash Collected</th>
+                    <td>{{ appointment.cash_collected }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="footer">
+            <p>If you have any questions or need further assistance, please contact us at <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>
+        </div>
+    </div>
+</body>
+</html>

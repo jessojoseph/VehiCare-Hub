@@ -43,9 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'allauth',
     'allauth.account',
-    'allauth.socialaccount',
+    'allauth.socialaccount',    
     'allauth.socialaccount.providers.google',
-    'payment',
 ]
 
 SITE_ID = 1
@@ -185,6 +184,8 @@ EMAIL_HOST_PASSWORD = 'riho ovfr oxxr wans'
 PASSWORD_RESET_TIMEOUT = 14400
 EMAIL_DEBUG = True
 
-RAZOR_KEY_ID = 'rzp_test_LkRa4KnmClOTOq'
-RAZOR_KEY_SECRET = '8v0zfmJMXsi4I7BC5HFQGHVF'
+
+
+RAZOR_KEY_ID = 'rzp_test_4flrlDKHtVzY0w'
+RAZOR_KEY_SECRET = 'wq2Kc1409VmIv3bmZbXo31Cm'
 

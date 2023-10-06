@@ -4,6 +4,16 @@
 
 {% block content %}
     <h1>Book an Appointment</h1>
+    
+    {% if has_active_booking %}
+    <!-- Alert for Active Booking Warning -->
+    <div id="active-booking-alert" class="alert alert-danger" role="alert">
+        You have an active booking. Please complete or cancel your existing booking before scheduling a new one.
+    </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" class="appointment-form">
+        {% csrf_token %}
     <form method="post" enctype="multipart/form-data" class="appointment-form">
         {% csrf_token %}
         
@@ -30,7 +40,7 @@
         
         <div class="form-group">
             <label for="{{ form.service_date.id_for_label }}">Service Date:</label>
-            <input type="date" id="{{ form.service_date.id_for_label }}" name="{{ form.service_date.name }}" value="{{ form.service_date.value }}" class="form-control">
+            <input type="date" id="{{ form.service_date.id_for_label }}" name="{{ form.service_date.name }}" class="form-control" min="{{ today }}" max="{{ maxDate }}">
         </div>
         
 
@@ -44,6 +54,30 @@
         </div>
         
         <button type="submit" class="btn btn-primary">Book Appointment</button>
+
+        <script>
+            // Calculate today's date in the format "YYYY-MM-DD"
+            var today = new Date().toISOString().split('T')[0];
+
+            // Calculate the max date (one week from today) in the format "YYYY-MM-DD"
+            var maxDate = new Date();
+            maxDate.setDate(maxDate.getDate() + 7);
+            var maxDateFormatted = maxDate.toISOString().split('T')[0];
+
+            // Set the min and max attributes of the date input field
+            document.getElementById("{{ form.service_date.id_for_label }}").setAttribute("min", today);
+            document.getElementById("{{ form.service_date.id_for_label }}").setAttribute("max", maxDateFormatted);
+
+            // Automatically remove the alert after 3 seconds
+            setTimeout(function() {
+            var alertElement = document.getElementById("active-booking-alert");
+            if (alertElement) {
+                alertElement.style.display = "none";
+            }
+        }, 3000); // 3000 milliseconds = 3 seconds
+            
+        </script>
+
     </form>
     
 {% endblock %}
