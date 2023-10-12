@@ -257,31 +257,31 @@
                 {% csrf_token %}
                 <div class="field">
                     <span class="fa fa-user"></span>
-                    <input type="text" required pattern="[A-Za-z ]+" title="Please enter a valid name (letters and spaces only)" placeholder=" First name" name="first_name" id="nameInput">
+                    <input type="text" required pattern="[A-Za-z ]+" title="Please enter a valid name (letters and spaces only)" placeholder=" First name" name="first_name" id="fname">
                 </div>
                 <div class="field">
                     <span class="fa fa-user"></span>
-                    <input type="text" required pattern="[A-Za-z ]+" title="Please enter a valid name (letters and spaces only)" placeholder="Last name" name="last_name" id="nameInput">
+                    <input type="text" required pattern="[A-Za-z ]+" title="Please enter a valid name (letters and spaces only)" placeholder="Last name" name="last_name" id="lname">
                 </div>
                 <div class="field">
                     <span class="fa fa-user-circle"></span>
-                    <input type="text" required pattern="[A-Za-z ]+" title="Please enter a valid name (letters and spaces only)" placeholder="Username" name="username" id="nameInput">
+                    <input type="text" required pattern="[A-Za-z ]+" title="Please enter a valid name (letters and spaces only)" placeholder="Username" name="username" id="uname">
                 </div>
                 <div class="field space">
                     <span class="fa fa-envelope"></span>
-                    <input type="email" required placeholder="Email" name="email" id="emailInput">
+                    <input type="email" required placeholder="Email" name="email" id="email">
                 </div>
                 <div class="field space">
                     <span class="fa fa-lock"></span>
-                    <input type="password" class="pass-key" required pattern=".{6,}" title="Password must be at least 6 characters" placeholder="Password" name="pwd">
+                    <input type="password" class="pass-key" required pattern=".{6,}" title="Password must be at least 6 characters" placeholder="Password" name="pwd" id="pwd">
                     <span class="show">SHOW</span>
                 </div>
                 <div class="field space">
                     <span class="fa fa-lock"></span>
-                    <input type="password" class="confirm-pass" required pattern=".{6,}" title="Password must be at least 6 characters" placeholder="Confirm Password" name="cpwd">
+                    <input type="password" class="confirm-pass" required pattern=".{6,}" title="Password must be at least 6 characters" placeholder="Confirm Password" name="cpwd" id="cpwd">
                 </div>
                 <div class="field">
-                    <input type="submit" value="Sign up">
+                    <input type="submit" id="submit" value="Sign up">
                 </div>
             </form>
             <div class="login">

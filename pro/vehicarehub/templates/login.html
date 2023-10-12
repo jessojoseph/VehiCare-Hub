@@ -247,18 +247,18 @@
                {% csrf_token %}
                <div class="field">
                   <span class="fa fa-user"></span>
-                  <input type="text" required placeholder="Email or Username" name="EU">
+                  <input type="text" id="username" required placeholder="Email or Username" name="EU">
                </div>
                <div class="field space">
                   <span class="fa fa-lock"></span>
-                  <input type="password" class="pass-key" required placeholder="Password" name="pwd">
+                  <input type="password" id="password" class="pass-key" required placeholder="Password" name="pwd">
                   <span class="show">SHOW</span>
                </div>
                <div class="pass">
                   <a href="{% url 'password_reset' %}">Forgot Password?</a>
                </div>
                <div class="field">
-                  <input type="submit" value="Sign in">
+                  <input type="submit" id="submit" value="Sign in">
                </div>
             </form>
             <div class="login">
