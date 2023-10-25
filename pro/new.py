@@ -1,30 +1,70 @@
 import pandas as pd
 import random
+from datetime import datetime, timedelta
 
-# Define the number of records you want
-num_records = 200
+# Create an empty DataFrame
+data = {
+    'Bike_Model': [],
+    'Age': [],
+    'Service_Type': [],
+    'Service_History': [],
+    'Service_Time (hours:minutes)': [],
+    'Build_Year': [],
+    'Mileage (km)': [],
+    'Last_Serviced_Date (months)': [],
+    'Current_Year': []
+}
 
-# Lists of possible values for each column
-models = ["Yamaha YZF R1", "Yamaha MT-07", "Yamaha FZ-09", "Yamaha YZF R6", "Yamaha MT-09", "Yamaha FZ-07", "Yamaha YZF R3", "Yamaha MT-10", "Yamaha FZ-10", "Yamaha XSR700"]
-years = [random.randint(2010, 2023) for _ in range(num_records)]
-mileages = [random.randint(5000, 30000) for _ in range(num_records)]
-engine_temperatures = [random.randint(70, 95) for _ in range(num_records)]
-oil_levels = [1 if random.random() < 0.3 else 0 for _ in range(num_records)]  # 1 for 'Yes', 0 for 'No'
-service_required = [1 if random.random() < 0.4 else 0 for _ in range(num_records)]  # 1 for 'Yes', 0 for 'No'
-time_required = [round(random.uniform(2.0, 4.0), 1) if service == 1 else round(random.uniform(1.5, 3.0), 1) for service in service_required]
+# Generate 1000 rows of synthetic data
+bike_models = [
+    'Yamaha FZ 250', 'Yamaha FZ V1', 'Yamaha FZ V2', 'Yamaha FZ V3',
+    'Yamaha R15 V1', 'Yamaha R15 V2', 'Yamaha R15 V3', 'Yamaha R15 V4',
+    'Yamaha MT15 v1', 'Yamaha MT15 v2', 'Yamaha FZ X'
+]
 
-# Create a DataFrame without the 'bike_id' column
-data = pd.DataFrame({
-    'model': [random.choice(models) for _ in range(num_records)],
-    'year': years,
-    'mileage': mileages,
-    'engine_temperature': engine_temperatures,
-    'oil_level': oil_levels,
-    'service_required': service_required,
-    'time_required': time_required,
-    'engine_health': [random.choice([0, 1]) for _ in range(num_records)],  # 0 for "bad," 1 for "good"
-    'oil_quality': [random.choice([0, 1]) for _ in range(num_records)]  # 0 for "bad," 1 for "good"
-})
+service_types = [
+    'Oil Change', 'Air Filter Change', 'Coolant Oil Change', 'Brake Fluid Change',
+    'Fork Oil Change', 'Brake Inspection', 'Chain Inspection', 'Complete Check Up'
+]
 
-# Save the data to a CSV file
-data.to_csv('D:\pro\yamaha_bike.csv', index=False)
+current_year = 2023
+
+for _ in range(4000):
+    bike_model = random.choice(bike_models)
+    build_year = random.randint(2010, 2023)  # Build year from 2010 onwards
+    age = current_year - build_year
+    
+    # Assign mileage based on age (more age results in greater mileage)
+    mileage = random.randint(2000 + 1000 * (age // 2), 40000 + 5000 * (age // 2))
+    
+    service_type = random.choice(service_types)
+    service_history = random.randint(0, 30)  # Random service history
+    
+    # Calculate service time based on age and service type
+    if service_type == 'Complete Check Up':
+        service_time_hours = min(age * 2, 25)  # Maximum 25 hours for "Complete Check Up"
+    else:
+        service_time_hours = age  # Default service time for other service types
+    
+    # Convert service time to hours and minutes
+    service_time_minutes = random.randint(0, 59)
+    service_time_str = f"{service_time_hours:02}:{service_time_minutes:02}"
+    
+    # Generate a random number of months for the last serviced date (within the past year)
+    months_ago = random.randint(1, 12)
+    
+    data['Bike_Model'].append(bike_model)
+    data['Age'].append(age)
+    data['Service_Type'].append(service_type)
+    data['Service_History'].append(service_history)
+    data['Service_Time (hours:minutes)'].append(service_time_str)
+    data['Build_Year'].append(build_year)
+    data['Mileage (km)'].append(mileage)
+    data['Last_Serviced_Date (months)'].append(months_ago)
+    data['Current_Year'].append(current_year)
+
+# Create a DataFrame from the data
+df = pd.DataFrame(data)
+
+# Save the dataset to a CSV file
+df.to_csv('bike_service_dataset.csv', index=False)

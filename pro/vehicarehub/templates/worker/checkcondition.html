@@ -1,0 +1,100 @@
+{% extends 'basew.html' %}
+
+{% block title %}Predict Service Time{% endblock %}
+
+{% block content %}
+    <h1>Predict Service Time</h1>
+
+    <form method="post" class="vehicle-condition-form">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="bike_model">Bike Model:</label>
+            <input type="text" id="bike_model" name="bike_model" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="bike_age">Bike Age (in years):</label>
+            <input type="number" id="bike_age" name="bike_age" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="service_type">Service Type:</label>
+            <input type="text" id="service_type" name="service_type" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="service_history">Service History (in number):</label>
+            <input type="number" id="service_history" name="service_history" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="build_year">Build Year:</label>
+            <input type="number" id="build_year" name="build_year" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="mileage">Mileage (in km):</label>
+            <input type="number" id="mileage" name="mileage" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="last_serviced_date">Last Serviced Date (in months):</label>
+            <input type="number" id="last_serviced_date" name="last_serviced_date" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="current_year">Current Year:</label>
+            <input type="number" id="current_year" name="current_year" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Predict Service Time</button>
+    </form>
+
+   
+    
+    <!-- Modal for displaying the prediction result -->
+    <div class="modal fade" id="predictionModal" tabindex="-1" role="dialog" aria-labelledby="predictionModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="predictionModalLabel">Predicted Service Time</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p style="font-size: 24px; color: #007BFF;">
+                        Predicted Service Time: {{ predicted_hours }} hours and {{ predicted_minutes }} minutes
+                    </p>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.7.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('form').submit(function (e) {
+                e.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: '/checkcondition/',  // Update with the correct URL
+                    data: $(this).serialize(),
+                    success: function (data) {
+                        // Show the modal with the prediction
+                        $('#predictionModal').modal('show');
+                        // Update the modal content with the predicted time
+                        $('.modal-body p').html(data.predicted_hours + ' hours and ' + data.predicted_minutes + ' minutes');
+                    },
+                    error: function () {
+                        // Handle errors if necessary
+                    }
+                });
+            });
+        });
+    </script>
+    
+{% endblock %}

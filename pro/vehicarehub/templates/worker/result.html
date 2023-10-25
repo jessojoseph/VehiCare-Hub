@@ -1,0 +1,44 @@
+{% extends 'basew.html' %}
+
+{% block title %}Predict Service Time{% endblock %}
+
+{% block content %}
+    <h1>Predict Service Time</h1>
+
+    <form method="post" class="vehicle-condition-form">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="bike_model">Bike Model:</label>
+            <input type="text" id="bike_model" name="bike_model" class="form-control" required>
+        </div>
+
+        <!-- Add other form fields here -->
+
+        <button type="submit" class="btn btn-primary">Predict Service Time</button>
+    </form>
+
+    <!-- This div will display the prediction result -->
+    <div id="prediction-result"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('form').submit(function (e) {
+                e.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: '/checkcondition/',  // Update with the correct URL
+                    data: $(this).serialize(),
+                    success: function (data) {
+                        $('#prediction-result').html('Predicted Service Time: ' + data.predicted_hours + ' hours and ' + data.predicted_minutes + ' minutes');
+                    },
+                    error: function () {
+                        // Handle errors if necessary
+                    }
+                });
+            });
+        });
+    </script>
+    
+{% endblock %}

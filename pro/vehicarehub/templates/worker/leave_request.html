@@ -28,4 +28,34 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Get the date input elements
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+
+    // Get the current date
+    const currentDate = new Date().toISOString().split('T')[0];
+
+    // Set the min attribute for the date inputs to disable past dates
+    startDateInput.setAttribute('min', currentDate);
+    endDateInput.setAttribute('min', currentDate);
+
+// Function to validate the Reason field
+function validateReasonField() {
+    const reasonValue = reasonInput.value.trim();
+    
+    if (reasonValue === '') {
+        reasonError.textContent = 'Please provide a reason.';
+        reasonInput.classList.add('is-invalid');
+    } else if (!/^[a-zA-Z\s]*$/.test(reasonValue)) {
+        reasonError.textContent = 'Reason should only contain alphabets and spaces.';
+        reasonInput.classList.add('is-invalid');
+    } else {
+        reasonError.textContent = ''; // Clear any previous error message
+        reasonInput.classList.remove('is-invalid');
+        // You can submit the form here if the reason is valid
+    }
+}
+</script>
 {% endblock %}

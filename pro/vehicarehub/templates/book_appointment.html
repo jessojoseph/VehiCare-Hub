@@ -24,7 +24,7 @@
         
         <div class="form-group">
             <label for="{{ form.vehicle_model.id_for_label }}">Vehicle Model:</label>
-            <input type="text" id="{{ form.vehicle_model.id_for_label }}" name="{{ form.vehicle_model.name }}" value="{{ form.vehicle_model.value }}" class="form-control">
+            <input type="text" id="{{ form.vehicle_model.id_for_label }}" name="{{ form.vehicle_model.name }}" value="{{ form.vehicle_model.value }}" class="form-control" required>
         </div>
         
         <div class="form-group">
@@ -75,7 +75,8 @@
                 alertElement.style.display = "none";
             }
         }, 3000); // 3000 milliseconds = 3 seconds
-            
+
+        
         </script>
 
     </form>

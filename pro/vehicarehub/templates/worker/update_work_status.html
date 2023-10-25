@@ -37,7 +37,7 @@
             <textarea class="form-control" id="additional_notes" name="additional_notes" rows="4">{{ task.additional_notes }}</textarea>
         </div>
 
-        <div class="form-group">
+        {% comment %} <div class="form-group">
           <!-- Add these elements to your form -->
           <input type="hidden" id="audio_data" name="audio_data">
           <button type="button" id="start_stop_recording">Start Recording</button>
@@ -46,7 +46,7 @@
       
       <div id="recording-status"></div>
       
-      <button type="button" id="save_audio" class="btn btn-secondary">Save Audio</button>
+      <button type="button" id="save_audio" class="btn btn-secondary">Save Audio</button> {% endcomment %}
       <button type="submit" class="btn btn-primary">Update Status</button>
       
       <script>

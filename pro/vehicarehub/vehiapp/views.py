@@ -159,7 +159,6 @@ from .models import Appointment
 from .forms import AppointmentForm
 from django.db.models import Count
 from django.db.models.functions import ExtractDay
-
 @login_required
 def book_appointment(request):
     if request.method == 'POST':
@@ -167,21 +166,21 @@ def book_appointment(request):
         if form.is_valid():
             user = request.user
             service_date = form.cleaned_data['service_date']
-            
+
             # Check if the user has an active booking (appointment_status='Scheduled')
             has_active_booking = Appointment.objects.filter(user_name=user, appointment_status='Scheduled').exists()
-            
+
             if has_active_booking:
                 # If the user has an active booking, trigger the modal
                 return render(request, 'book_appointment.html', {'form': form, 'service_types': Service.objects.all(), 'has_active_booking': True})
-            
+
             # Check if the user already has a booking for the selected date
             existing_booking = Appointment.objects.filter(user_name=user, service_date=service_date).exists()
-            
+
             if existing_booking:
                 # If the user already has a booking for the selected date, show a warning
                 return render(request, 'book_appointment.html', {'form': form, 'service_types': Service.objects.all(), 'existing_booking': True})
-            
+
             # Check if the maximum limit (9 appointments) is reached for the selected date
             appointments_count = (
                 Appointment.objects
@@ -191,37 +190,44 @@ def book_appointment(request):
                 .annotate(count=Count('id'))
                 .order_by('day')
             )
-            
+
             if not appointments_count:
                 # No appointments on the selected date, so it's okay to book
                 appointment = form.save(commit=False)
                 appointment.user_name = user
+                appointment.appointment_status = 'Pending'  # Set the appointment status as 'Pending'
                 appointment.save()
-                
+
                 # Send a confirmation email to the user
                 send_appointment_confirmation_email(user.email, appointment)
 
                 # Create a Payment record (assuming you have a Payment model)
+                # Note: Payment status handling should be in your payment handling view
 
                 # Redirect the user to the pay.html page to collect payment
                 return redirect('payment', appointment_id=appointment.id)
-                
+
             else:
                 # Check if the count for the selected date is less than 9
                 if appointments_count[0]['count'] < 9:
                     # If the limit is not reached, book the appointment
                     appointment = form.save(commit=False)
                     appointment.user_name = user
+                    appointment.appointment_status = 'Pending'  # Set the appointment status as 'Pending'
                     appointment.save()
 
                     # Send a confirmation email to the user
                     send_appointment_confirmation_email(user.email, appointment)
 
+                    # Create a Payment record (assuming you have a Payment model)
+                    # Note: Payment status handling should be in your payment handling view
+
                     # Redirect the user to the pay.html page to collect payment
-                    return redirect('pay', appointment_id=appointment.id)
+                    return redirect('payment', appointment_id=appointment.id)
                 else:
                     # If the limit is reached, show a warning
-                    return render(request, 'book_appointment.html', {'form': form, 'service_types': Service.objects.all(), 'appointment_limit_reached': True})
+                    error_message = 'Appointment limit for the selected date is reached.'
+                    return render(request, 'book_appointment.html', {'form': form, 'service_types': Service.objects.all(), 'error_message': error_message})
     else:
         form = AppointmentForm()
 
@@ -300,10 +306,17 @@ def create_daily_slots(request):
 def confirmation(request):
     return render(request, 'confirmation.html')
 
+from django.contrib.auth.decorators import login_required
+from django.http import Http404
 
+@login_required
 def editprofile(request):
     user = request.user
-    user_profile = UserProfile.objects.get(user=user)
+    try:
+        user_profile = UserProfile.objects.get(user=user)
+    except UserProfile.DoesNotExist:
+        # Handle the case when the user profile does not exist
+        raise Http404("User profile not found")
 
     if request.method == 'POST':
         user.first_name = request.POST.get('first_name')
@@ -485,6 +498,7 @@ def workerdashboard(request):
 
 def admindash(request):
     return render(request, 'admindash.html')
+
 
 
 from django.shortcuts import render, redirect
@@ -1009,7 +1023,7 @@ def paymenthandler(request, appointment_id):
             'razorpay_signature': signature
         })
 
-
+        
         # Payment signature is valid
         payment = Payment.objects.get(razorpay_order_id=razorpay_order_id)
         amount = int(payment.amount * 100)  # Convert Decimal to paise
@@ -1022,8 +1036,9 @@ def paymenthandler(request, appointment_id):
         payment.payment_status = Payment.PaymentStatusChoices.SUCCESSFUL
         payment.save()
 
+        # Update the appointment status to 'Scheduled'
         update_appointment = Appointment.objects.get(id=appointment_id)
-        update_appointment.status = 'pending'
+        update_appointment.appointment_status = 'Scheduled'  # Update the status field
         update_appointment.save()
 
         # Redirect to the confirmation page upon successful payment
@@ -1031,4 +1046,58 @@ def paymenthandler(request, appointment_id):
 
     return HttpResponseBadRequest()
 
+import pandas as pd
+import joblib
+from .models import ServiceTimePrediction  # Import the model(s) you created
+from django.http import JsonResponse  # Import JsonResponse
 
+def prediction(request):
+    if request.method == 'POST':
+        # Get user inputs from the HTML form
+        bike_model = request.POST['bike_model']
+        bike_age = int(request.POST['bike_age'])
+        service_type = request.POST['service_type']
+        service_history = int(request.POST['service_history'])
+        build_year = int(request.POST['build_year'])
+        mileage = int(request.POST['mileage'])
+        last_serviced_date = int(request.POST['last_serviced_date'])
+        current_year = int(request.POST['current_year'])
+
+        # Load the trained model and label encoders
+        model = joblib.load('models/rf_model.pkl')  # Correct the path
+        label_encoders = joblib.load('models/label_encoders.pkl')  # Correct the path
+
+        # Create a DataFrame for the user input
+        user_data = pd.DataFrame({
+            'Bike_Model': [bike_model],
+            'Age': [bike_age],
+            'Service_Type': [service_type],
+            'Service_History': [service_history],
+            'Build_Year': [build_year],
+            'Mileage (km)': [mileage],
+            'Last_Serviced_Date (months)': [last_serviced_date],
+            'Current_Year': [current_year]
+        })
+
+        # Encode categorical variables in the user data
+        for column in ['Bike_Model', 'Service_Type']:
+            user_data[column] = label_encoders[column].transform(user_data[column])
+
+        # Make predictions for the user input
+        predicted_hours = model.predict(user_data)
+
+        # Predicted hours and minutes
+        predicted_hours = int(predicted_hours[0])
+        predicted_minutes = int(predicted_hours % 60)
+
+        # Prepare the data to return in JSON format
+        response_data = {
+            'predicted_hours': predicted_hours,
+            'predicted_minutes': predicted_minutes,
+        }
+
+        # Return a JSON response
+        return JsonResponse(response_data)
+
+    # Render the initial form
+    return render(request, 'worker/checkcondition.html')

@@ -49,6 +49,7 @@ urlpatterns = [
     path('payment/<int:appointment_id>/', views.payment, name='payment'),
     path('paymenthandler/<int:appointment_id>/', views.paymenthandler, name='paymenthandler'),
 
+    path('checkcondition/', views.prediction, name='checkcondition'),
 
 
  

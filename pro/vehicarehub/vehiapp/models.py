@@ -105,6 +105,7 @@ class Slot(models.Model):
         return f"{self.service_date} {self.service_time}"
 
 
+
 class Appointment(models.Model):
     user_name = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     vehicle_model = models.CharField(max_length=100)
@@ -113,11 +114,20 @@ class Appointment(models.Model):
     service_type = models.ForeignKey(Service, on_delete=models.CASCADE, null=True)
     registration_number = models.CharField(max_length=100)
 
-    appointment_status = models.CharField(max_length=50, default='Scheduled')
+    APPOINTMENT_STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Scheduled', 'Scheduled'),
+        ('Completed', 'Completed'),
+    ]
+
+    appointment_status = models.CharField(
+        max_length=50,
+        choices=APPOINTMENT_STATUS_CHOICES,
+        default='Pending',
+    )
 
     def __str__(self):
         return f"{self.user_name}'s Appointment on {self.service_date} for {self.vehicle_model}"
-
 
 
 class Task(models.Model):
@@ -194,3 +204,33 @@ class Payment(models.Model):
             # Update the status to "Failed"
             self.payment_status = self.PaymentStatusChoices.FAILED
             self.save()
+
+
+class ServicePrediction(models.Model):
+    vehicle_model = models.CharField(max_length=100)
+    vehicle_year = models.IntegerField()
+    mileage = models.IntegerField()
+    engine_temperature = models.FloatField()
+    oil_level = models.FloatField()
+    engine_health = models.CharField(max_length=10)
+    oil_quality = models.CharField(max_length=10)
+    predicted_service_time = models.FloatField()
+    recommended_services = models.TextField()
+
+    def __str__(self):
+        return self.vehicle_model
+
+
+class ServiceTimePrediction(models.Model):
+    bike_model = models.CharField(max_length=255)
+    age = models.IntegerField()
+    service_type = models.CharField(max_length=255)
+    service_history = models.IntegerField()
+    build_year = models.IntegerField()
+    mileage = models.IntegerField()
+    last_serviced_date = models.IntegerField()
+    current_year = models.IntegerField()
+    predicted_time = models.IntegerField()
+
+    def __str__(self):
+        return f"ServiceTimePrediction {self.id}"
