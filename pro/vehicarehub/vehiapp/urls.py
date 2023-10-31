@@ -21,7 +21,8 @@ urlpatterns = [
     path('confirmation/', views.confirmation, name='confirmation'),
     path('viewappointments/', views.viewappointment, name='viewappointments'),
     path('cancel_appointment/<int:appointment_id>/', views.cancel_appointment, name='cancel_appointment'),
-    
+    path('admin_view_updates/', views.admin_view_updates, name='admin_view_updates'),
+
 
 
     path('search_services/', views.search_services, name='search_services'),

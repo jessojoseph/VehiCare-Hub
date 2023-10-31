@@ -909,35 +909,50 @@ def update_work_status(request, task_id):
 
 
 from .models import Task, CustomUser, Appointment
-
 @login_required
 def view_updates(request):
-    user = request.user  # Get the currently logged-in user
+    user = request.user
+
+    completed_tasks = Task.objects.filter(status='completed', appointment__user_name=user)
+    ongoing_tasks = Task.objects.filter(status='in_progress', appointment__user_name=user)
+    user_appointments = Appointment.objects.filter(user_name=user)
+
+    context = {
+        'completed_tasks': completed_tasks,
+        'ongoing_tasks': ongoing_tasks,
+        'user_appointments': user_appointments,
+    }
     
-    # Check if the user is an admin (you can modify this condition based on your admin role criteria)
-    is_admin = user.is_superuser
-
-    appointments = None
-    selected_appointment = None
-
-    if is_admin:
-        # Fetch all appointments for the admin
-        appointments = Appointment.objects.all()
-
-        # Check if a specific appointment is selected from the form
-        if request.method == 'POST':
-            appointment_id = request.POST.get('appointment')
-            if appointment_id:
-                selected_appointment = Appointment.objects.get(id=appointment_id)
-    else:
-        # For regular users, restrict them to only view their own updates
-        appointments = Appointment.objects.filter(user_name=user)
-        selected_appointment = appointments.first()  # Display the first appointment by default
-
-    tasks = Task.objects.filter(appointment=selected_appointment)
-
-    context = {'appointments': appointments, 'tasks': tasks, 'selected_appointment': selected_appointment, 'is_admin': is_admin}
     return render(request, 'view_updates.html', context)
+@login_required
+def admin_view_updates(request):
+    if request.user.is_superuser:
+        # Filter users with the customer role
+        customers = User.objects.filter(role=CustomUser.CUSTOMER)
+        
+        # Print all customer usernames to the terminal
+        for customer in customers:
+            print(f"Customer: {customer.username}")
+        
+        selected_user_id = request.GET.get('selected_user', None)
+        selected_user = None
+        tasks = []
+
+        if selected_user_id:
+            selected_user = User.objects.get(pk=selected_user_id)
+            # Retrieve tasks for the selected user
+            tasks = Task.objects.filter(appointment__user_name=selected_user)
+
+        context = {
+            'customers': customers,  # Pass the list of customers to the template
+            'selected_user': selected_user,
+            'tasks': tasks,
+        }
+
+        return render(request, 'admin_view_updates.html', context)
+    else:
+        # Handle non-admin users here
+        return render(request, 'access_denied.html')
 
 
 

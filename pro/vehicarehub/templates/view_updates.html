@@ -1,84 +1,86 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>View Updates</h1>
+    <h1 class="text-center mb-4">View Updates</h1>
 
-    {% if is_admin %}
-        <form method="post" action="{% url 'view_updates' %}">
-            {% csrf_token %}
-            <label for="appointment">Select Appointment:</label>
-            <select name="appointment" id="appointment">
-                <option value="" selected>Select Appointment</option>
-                {% for appointment in appointments %}
-                    <option value="{{ appointment.id }}"
-                            {% if selected_appointment and appointment.id == selected_appointment.id %}selected{% endif %}>
-                        {{ appointment.user_name }} - {{ appointment.service_date }} {{ appointment.service_time }}
-                    </option>
-                {% endfor %}
-            </select>
-            <button type="submit">View Updates</button>
-        </form>
-    {% endif %}
-
-    <div class="tracking-container">
-        {% for task in tasks %}
-            <div class="tracking-card">
-                <div class="tracking-header">
-                    <h3>{{ task.title }}</h3>
-                    <p>Status: {{ task.status }}</p>
-                </div>
-                <div class="tracking-progress">
-                    <div class="progress-bar" style="width: {{ task.progress }}%;"></div>
-                </div>
-                <div class="tracking-details">
-                    <p><strong>Description:</strong> {{ task.description }}</p>
-                    <p><strong>Deadline:</strong> {{ task.deadline }}</p>
-                    <p><strong>Work Done:</strong> {{ task.work_done }}</p>
-                    <p><strong>Materials Used:</strong> {{ task.materials_used }}</p>
-                    <p><strong>Additional Notes:</strong> {{ task.additional_notes }}</p>
-                </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Completed Tasks</h2>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Task Title</th>
+                            <th>Description</th>
+                            <th>Deadline</th>
+                            <th>Work Done</th>
+                            <th>Materials Used</th>
+                            <th>Additional Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task in completed_tasks %}
+                            <tr>
+                                <td>{{ task.title }}</td>
+                                <td>{{ task.description }}</td>
+                                <td>{{ task.deadline }}</td>
+                                <td>{{ task.work_done }}</td>
+                                <td>{{ task.materials_used }}</td>
+                                <td>{{ task.additional_notes }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-        {% empty %}
-            <p>No updates available.</p>
-        {% endfor %}
+
+            <div class="col-md-6">
+                <h2>Ongoing Tasks</h2>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Task Title</th>
+                            <th>Description</th>
+                            <th>Deadline</th>
+                            <th>Work Done</th>
+                            <th>Materials Used</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task in ongoing_tasks %}
+                            <tr>
+                                <td>{{ task.title }}</td>
+                                <td>{{ task.description }}</td>
+                                <td>{{ task.deadline }}</td>
+                                <td>{{ task.work_done }}</td>
+                                <td>{{ task.materials_used }}</td>
+                                <td>{{ task.status }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <style>
-        .tracking-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        body {
+            background-color: #f4f4f4;
         }
-
-        .tracking-card {
-            border: 1px solid #ccc;
-            padding: 20px;
+        h1 {
+            color: #007BFF;
+        }
+        h2 {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px;
             border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        table {
             background-color: #fff;
         }
-
-        .tracking-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .tracking-progress {
-            height: 10px;
-            background-color: #f0f0f0;
-            border-radius: 5px;
-            margin-top: 10px;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background-color: #007BFF;
-            border-radius: 5px;
-        }
-
-        .tracking-details {
-            margin-top: 10px;
+        th, td {
+            text-align: center;
         }
     </style>
 {% endblock %}

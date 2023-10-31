@@ -4,19 +4,9 @@
 <h1>Assign Task</h1>
 <form method="post">
     {% csrf_token %}
-    
-    {% comment %} <div class="form-group">
-        <label for="title">Task Title:</label>
-        <input type="text" class="form-control" id="title" name="title" required>
-    </div>
-    
+
+    <!-- Select Worker -->
     <div class="form-group">
-        <label for="description">Task Description:</label>
-        <textarea class="form-control" id="description" name="description" required></textarea>
-    </div> {% endcomment %}
-    
-     <!-- Select Worker -->
-     <div class="form-group">
         <label for="worker">Select Worker:</label>
         <select class="form-control" id="worker" name="worker_id">
             <option value="">-- Select Worker --</option>
@@ -25,7 +15,7 @@
             {% endfor %}
         </select>
     </div>
-    
+
     <!-- Select Appointment -->
     <div class="form-group">
         <label for="appointment">Select Appointment:</label>
@@ -36,14 +26,43 @@
             {% endfor %}
         </select>
     </div>
-    
+
     <div class="form-group">
         <label for="deadline">Task Deadline:</label>
         <input type="datetime-local" class="form-control" id="deadline" name="deadline" required>
     </div>
-    
+
     <button type="submit" class="btn btn-primary">Assign Task</button>
 </form>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function () {
+    // Get the current date
+    var today = new Date();
+
+    // Calculate the date 5 days from today
+    var fiveDaysLater = new Date();
+    fiveDaysLater.setDate(today.getDate() + 5);
+
+    // Convert the dates to a format compatible with datetime-local input
+    var todayFormatted = today.toISOString().slice(0, 16);
+    var fiveDaysLaterFormatted = fiveDaysLater.toISOString().slice(0, 16);
+
+    // Set the minimum and maximum attributes for the datetime-local input
+    $('#deadline').attr('min', todayFormatted);
+    $('#deadline').attr('max', fiveDaysLaterFormatted);
+
+    // Allow time selection only from 8 am to 7 pm
+    $('#deadline').on('change', function () {
+        var selectedTime = new Date($('#deadline').val()).getHours();
+        if (selectedTime < 8 || selectedTime >= 19) {
+            $('#deadline')[0].setCustomValidity("Please select a time between 8 am and 7 pm.");
+        } else {
+            $('#deadline')[0].setCustomValidity('');
+        }
+    });
+});
+</script>
 
 {% endblock %}

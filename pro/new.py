@@ -15,7 +15,7 @@ data = {
     'Current_Year': []
 }
 
-# Generate 1000 rows of synthetic data
+# Generate 2000 rows of synthetic data
 bike_models = [
     'Yamaha FZ 250', 'Yamaha FZ V1', 'Yamaha FZ V2', 'Yamaha FZ V3',
     'Yamaha R15 V1', 'Yamaha R15 V2', 'Yamaha R15 V3', 'Yamaha R15 V4',
@@ -29,30 +29,35 @@ service_types = [
 
 current_year = 2023
 
-for _ in range(4000):
+for _ in range(2000):
     bike_model = random.choice(bike_models)
     build_year = random.randint(2010, 2023)  # Build year from 2010 onwards
     age = current_year - build_year
     
-    # Assign mileage based on age (more age results in greater mileage)
+    # Assign mileage based on age with added randomness
     mileage = random.randint(2000 + 1000 * (age // 2), 40000 + 5000 * (age // 2))
-    
+    mileage += random.randint(-5000, 5000)  # Introduce randomness
+
     service_type = random.choice(service_types)
     service_history = random.randint(0, 30)  # Random service history
-    
-    # Calculate service time based on age and service type
+    service_history += random.randint(-5, 5)  # Introduce randomness
+
+    # Calculate service time based on age and service type with randomness
     if service_type == 'Complete Check Up':
         service_time_hours = min(age * 2, 25)  # Maximum 25 hours for "Complete Check Up"
     else:
         service_time_hours = age  # Default service time for other service types
-    
-    # Convert service time to hours and minutes
+    service_time_hours += random.randint(-3, 3)  # Introduce randomness
+
+    # Convert service time to hours and minutes with randomness
     service_time_minutes = random.randint(0, 59)
+    service_time_minutes += random.randint(-30, 30)  # Introduce randomness
     service_time_str = f"{service_time_hours:02}:{service_time_minutes:02}"
-    
-    # Generate a random number of months for the last serviced date (within the past year)
+
+    # Generate a random number of months for the last serviced date with randomness
     months_ago = random.randint(1, 12)
-    
+    months_ago += random.randint(-3, 3)  # Introduce randomness
+
     data['Bike_Model'].append(bike_model)
     data['Age'].append(age)
     data['Service_Type'].append(service_type)

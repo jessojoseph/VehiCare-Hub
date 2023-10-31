@@ -156,15 +156,15 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
-
 SOCIALACCOUNT_PROVIDERS = {
-    'google' : {
-        'SCOPE':{
-            'profile',
-            'email'
-        },
-        'AUTH_PARAMS':{
-            'access_type': 'online',
+    'google': {
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+        'FIELDS': ['id', 'email', 'name'], 
+        'APP': {
+            'client_id': '332712698377-032knu6pfuadpb5m4id85vjirgem2fqm.apps.googleusercontent.com',
+            'secret': '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',
+            'key': ''
         }
     }
 }
