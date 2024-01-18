@@ -33,10 +33,13 @@ class UserManager(BaseUserManager):
 class CustomUser(AbstractUser):
     WORKER = 1
     CUSTOMER = 2
+    ADVISOR = 3
 
     ROLE_CHOICES = (
         (WORKER, 'Worker'),
         (CUSTOMER, 'Customer'),
+        (ADVISOR, 'Advisor'),
+
     )
 
     first_name = models.CharField(max_length=50)
@@ -141,7 +144,10 @@ class Task(models.Model):
     work_done = models.TextField(blank=True, null=True)
     materials_used = models.TextField(blank=True, null=True)
     additional_notes = models.TextField(blank=True, null=True)
-    audio_file = models.FileField(upload_to='audio_recordings/', null=True)
+    audio_file = models.FileField(upload_to='audio/', null=True, blank=True)
+    recognized_text = models.TextField(blank=True, null=True)
+
+
 
     def __str__(self):
         return self.title
@@ -234,3 +240,13 @@ class ServiceTimePrediction(models.Model):
 
     def __str__(self):
         return f"ServiceTimePrediction {self.id}"
+
+class Advisor(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    experience = models.PositiveIntegerField(null=True)
+    is_available = models.BooleanField(default=True) 
+
+
+    def __str__(self):
+        return self.user.username

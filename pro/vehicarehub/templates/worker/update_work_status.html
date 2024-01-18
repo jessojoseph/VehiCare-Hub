@@ -37,69 +37,97 @@
             <textarea class="form-control" id="additional_notes" name="additional_notes" rows="4">{{ task.additional_notes }}</textarea>
         </div>
 
-        {% comment %} <div class="form-group">
-          <!-- Add these elements to your form -->
-          <input type="hidden" id="audio_data" name="audio_data">
-          <button type="button" id="start_stop_recording">Start Recording</button>
-      </div>
-      <audio id="audio-player" controls></audio>
-      
-      <div id="recording-status"></div>
-      
-      <button type="button" id="save_audio" class="btn btn-secondary">Save Audio</button> {% endcomment %}
+    <!-- New audio recording section -->
+    <div class="form-group">
+        <label for="record_audio">Record Audio:</label>
+        <button type="button" id="start_stop_recording" class="btn btn-primary">Start Recording</button>
+        <input type="hidden" id="audio_data" name="audio_data" />
+        <audio id="audio-player" controls style="display: none;"></audio>
+        <div id="recording-status"></div>
+        <textarea class="form-control" id="recognized_text" name="recognized_text" rows="4" readonly></textarea>
+    </div>
+    
       <button type="submit" class="btn btn-primary">Update Status</button>
       
-      <script>
-          // JavaScript to handle audio recording and playback
-          const startStopRecordingButton = document.getElementById('start_stop_recording');
-          const audioDataInput = document.getElementById('audio_data');
-          const audioPlayer = document.getElementById('audio-player');
-          const recordingStatusDiv = document.getElementById('recording-status');
-          let mediaRecorder;
-          let audioChunks = [];
-          let isRecording = false; // Add a flag to track recording state
-      
-          startStopRecordingButton.addEventListener('click', () => {
-              if (!isRecording) {
-                  navigator.mediaDevices.getUserMedia({ audio: true })
-                      .then(function (stream) {
-                          mediaRecorder = new MediaRecorder(stream);
-      
-                          mediaRecorder.ondataavailable = (event) => {
-                              if (event.data.size > 0) {
-                                  audioChunks.push(event.data);
-                              }
-                          };
-      
-                          mediaRecorder.onstop = () => {
-                              const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                              audioDataInput.value = audioBlob;
-                              recordingStatusDiv.textContent = 'Recording stopped.';
-                              audioPlayer.src = URL.createObjectURL(audioBlob); // Set the audio player source
-                              audioPlayer.style.display = 'block'; // Show the audio player
-                          };
-      
-                          mediaRecorder.start();
-                          startStopRecordingButton.textContent = 'Stop Recording';
-                          recordingStatusDiv.textContent = 'Recording...';
-                          isRecording = true; // Update recording state
-                      })
-                      .catch(function (error) {
-                          console.error('Error accessing microphone:', error);
-                      });
-              } else {
-                  mediaRecorder.stop();
-                  startStopRecordingButton.textContent = 'Start Recording';
-                  isRecording = false; // Update recording state
-              }
-          });
-      
-          // JavaScript to handle saving audio data
-          const saveAudioButton = document.getElementById('save_audio');
-          saveAudioButton.addEventListener('click', () => {
-              // Implement logic to save the recorded audio data to your backend here
-              // You can use the audioDataInput.value to access the audio blob
-              // Send the audio data via an AJAX request or another suitable method
-          });
-      </script>
+ <!-- ... Existing JavaScript ... -->
+
+<script>
+    // JavaScript to handle audio recording and playback
+    const startStopRecordingButton = document.getElementById('start_stop_recording');
+    const audioDataInput = document.getElementById('audio_data');
+    const audioPlayer = document.getElementById('audio-player');
+    const recordingStatusDiv = document.getElementById('recording-status');
+    const recognizedTextArea = document.getElementById('recognized_text');
+    let mediaRecorder;
+    let audioChunks = [];
+    let recognition; // Declare the recognition object outside the loop
+    let isRecording = false;
+
+    startStopRecordingButton.addEventListener('click', () => {
+        if (!isRecording) {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(function (stream) {
+                    mediaRecorder = new MediaRecorder(stream);
+
+                    mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            audioChunks.push(event.data);
+                        }
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        audioDataInput.value = audioBlob;
+                        recordingStatusDiv.textContent = 'Recording stopped.';
+                        audioPlayer.src = URL.createObjectURL(audioBlob); // Set the audio player source
+                        audioPlayer.style.display = 'block'; // Show the audio player
+                        isRecording = false;
+                    };
+
+                    mediaRecorder.start();
+                    startStopRecordingButton.textContent = 'Stop Recording';
+                    recordingStatusDiv.textContent = 'Recording...';
+                    isRecording = true;
+
+                    // Speech recognition logic
+                    recognition = new webkitSpeechRecognition();
+                    recognition.lang = 'en-US';
+
+                    recognition.onresult = (event) => {
+                        const transcript = event.results[0][0].transcript;
+                        recognizedTextArea.value = transcript;
+                    };
+
+                    recognition.onerror = (event) => {
+                        console.error('Speech recognition error:', event.error);
+                    };
+
+                    recognition.onend = () => {
+                        // Restart recognition when it ends
+                        if (isRecording) {
+                            recognition.start();
+                        }
+                    };
+
+                    recognizedTextArea.value = 'Recognizing...';
+                    recognition.start();
+                })
+                .catch(function (error) {
+                    console.error('Error accessing microphone:', error);
+                });
+        } else {
+            mediaRecorder.stop();
+            recognition.stop(); // Stop the recognition loop
+            startStopRecordingButton.textContent = 'Start Recording';
+            recordingStatusDiv.textContent = 'Recording stopped.';
+            isRecording = false;
+        }
+    });
+
+    // ... (rest of your speech recognition code) ...
+
+</script>
+
+<!-- ... Existing JavaScript ... -->
+
 {% endblock %}

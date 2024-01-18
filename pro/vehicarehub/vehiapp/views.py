@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.contrib.auth import get_user_model
-from .models import Service, UserProfile,Worker,Slot,CustomUser,Appointment
+from .models import Service, UserProfile,Worker,Slot,CustomUser,Appointment, Advisor
 from .forms import AppointmentForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -384,24 +384,26 @@ def login(request):
         username_or_email = request.POST.get('EU')
         password = request.POST.get('pwd')
 
+        # Check if the user exists by username or email
         user = None
         if '@' in username_or_email:
-            # User is trying to log in using email
             user = CustomUser.objects.filter(email=username_or_email).first()
         else:
-            # User is trying to log in using username
             user = CustomUser.objects.filter(username=username_or_email).first()
 
         if user is not None:
-            user = authenticate(
-                request, username=user.username, password=password)
+            # Check if the provided password is correct
+            user = authenticate(request, username=user.username, password=password)
             if user is not None:
                 auth_login(request, user)
 
+                # Redirect based on user role
                 if user.role == CustomUser.WORKER:
                     return redirect('workerdashboard')  # Redirect workers to the worker dashboard
+                elif user.role == CustomUser.ADVISOR:
+                    return redirect('insureadmindash')  # Redirect advisors to the insure1 page
                 else:
-                    return redirect('index')  # Redirect customers to the index page
+                    return redirect('index')  # Redirect other roles to the index page
             else:
                 messages.error(request, "Invalid username or password.")
                 return redirect('login')
@@ -868,6 +870,46 @@ def view_leavestat(request):
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Task, Worker, Appointment
 
+# def update_work_status(request, task_id):
+#     task = get_object_or_404(Task, id=task_id)
+
+#     if request.method == 'POST':
+#         new_status = request.POST.get('new_status')
+#         work_done = request.POST.get('work_done')
+#         materials_used = request.POST.get('materials_used')
+#         additional_notes = request.POST.get('additional_notes')
+#         audio_data = request.FILES.get('audio_data')
+
+#         task.status = new_status
+#         task.work_done = work_done
+#         task.materials_used = materials_used
+#         task.additional_notes = additional_notes
+
+#         # Check if audio_data is provided and save it to the database
+#         if audio_data:
+#             task.audio_file.save(audio_data.name, audio_data)
+
+#         task.save()
+
+#         # Check if the task is marked as completed
+#         if new_status == 'completed':
+#             # Get the worker associated with the task
+#             worker = task.worker
+
+#             # Mark the worker as available for other jobs
+#             worker.is_available = True
+#             worker.save()
+
+#              # Update the appointment status associated with this task
+#             appointment = task.appointment
+#             appointment.appointment_status = 'Completed'
+#             appointment.save()
+
+#         return redirect('workerdashboard')
+
+#     return render(request, 'worker/update_work_status.html', {'task': task})
+
+
 def update_work_status(request, task_id):
     task = get_object_or_404(Task, id=task_id)
 
@@ -887,6 +929,9 @@ def update_work_status(request, task_id):
         if audio_data:
             task.audio_file.save(audio_data.name, audio_data)
 
+            # Here, you might want to add a call to a function to process the audio
+            process_audio(task, audio_data)
+
         task.save()
 
         # Check if the task is marked as completed
@@ -898,15 +943,19 @@ def update_work_status(request, task_id):
             worker.is_available = True
             worker.save()
 
-             # Update the appointment status associated with this task
+            # Update the appointment status associated with this task
             appointment = task.appointment
-            appointment.appointment_status = 'Completed'
+            appointment.appointment_status = 'Completed'    
             appointment.save()
 
-        return redirect('workerdashboard')
+        return JsonResponse({'message': 'Work status updated successfully'})
 
     return render(request, 'worker/update_work_status.html', {'task': task})
 
+def process_audio(task, audio_data):
+    # Implement logic to process the audio if needed
+    # For example, you can transcribe the audio, analyze it, etc.
+    pass
 
 from .models import Task, CustomUser, Appointment
 @login_required
@@ -973,8 +1022,6 @@ import hmac, hashlib
 razorpay_client = razorpay.Client(
     auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET)
 )
-
-
 
 
 # View for initiating a payment
@@ -1116,3 +1163,75 @@ def prediction(request):
 
     # Render the initial form
     return render(request, 'worker/checkcondition.html')
+
+
+
+
+def login2(request):
+    return render(request, 'login2.html')
+
+def insureadmindash(request):
+    return render(request, 'insurance/insureadmindash.html')
+
+logger = logging.getLogger(__name__)
+def addadvisor(request):
+    if request.method == 'POST':
+        # Get data from the form
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        # Check if the email already exists
+        if User.objects.filter(email=email).exists():
+            messages.error(request, 'Email already exists. Please use a different email address.')
+        else:
+            # Create a new user
+            user = User.objects.create(username=username, email=email)
+            user.set_password(password)
+            user.is_active = True
+            user.role = CustomUser.ADVISOR
+            user.save()
+
+            logger.info(f"User {username} created successfully.")
+
+            # Send welcome email
+            send_welcome_emails(user.email, password, user.username)
+
+            # Create a Worker instance
+            advisor = Advisor(user=user)
+            advisor.save()
+
+            # Create a UserProfile
+            user_profile = UserProfile(user=user)
+            user_profile.save()
+
+            messages.success(request, 'New advisor created successfully.')
+            return redirect('addadvisor')  # Replace 'addworker' with your desired URL
+
+    # For GET requests or when the form is invalid, render the form
+    return render(request, 'insurance/addadvisor.html')
+
+def send_welcome_emails(email, password, worker_name):
+
+
+    login_url = 'http://127.0.0.1:8000/login/'  # Update with your actual login URL
+    login_button = f'Click here to log in: {login_url}'
+
+
+    subject = 'VehiCare Hub - Insurance Advisor Registration'
+    message = f"Hello {worker_name},\n\n"
+    message += f"Welcome to VehiCare Hub\n\n"
+    message += f"Your registration is complete, and we're excited to have you join us. Here are your login credentials:\n\n"
+    message += f"Email: {email}\nPassword: {password}\n\n"
+    message += "Please take a moment to log in to your account using the provided credentials. Once you've logged in, we encourage you to reset your password to something more secure and memorable.\n\n"
+    message += login_button
+    message += "\n\nSoulCure is committed to providing a safe and supportive environment for both therapists and clients. Together, we can make a positive impact on the lives of those seeking healing and guidance.\n"
+    message += "Thank you for joining the VehiCare Hub community. We look forward to your contributions and the positive energy you'll bring to our platform.\n\n"
+    message += "Warm regards,\nThe VehiCare Hub Team\n\n"
+    
+
+
+    from_email='jessojoseph2024@mca.ajce.in'
+    recipient_list = [email]
+    
+    send_mail(subject, message, from_email, recipient_list)

@@ -33,6 +33,7 @@ AUTH_USER_MODEL = 'vehiapp.CustomUser'
 
 INSTALLED_APPS = [
     'jazzmin',
+    'widget_tweaks',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

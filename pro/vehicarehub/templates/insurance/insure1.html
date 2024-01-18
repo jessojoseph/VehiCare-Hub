@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" dir="ltr">
+
+<head>
+  <style>
+    body {
+      margin: 0; /* Remove default margin */
+    }
+
+    .xyz {
+      height: 100vh; /* Set height to full viewport height */
+      margin: 0;
+      background-image: url('{% static "images/homepage.jpg" %}');
+      background-size: cover;
+      background-repeat: no-repeat;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .jumbotron {
+      background-color: rgba(255, 255, 255, 0.8); /* Add a semi-transparent background to improve text visibility */
+      padding: 20px;
+      border-radius: 10px;
+    }
+    
+  </style>
+</head>
+
+<body>
+  {% include "insurance/navbar.html" %}
+
+  <div class="xyz">
+    <div class="container text-center">
+      <h2 class="display-3 text-danger">VehiCare Hub</h2>
+      <p class="display-4 d-none d-sm-block">Get your premium policy</p>
+      <p class="lead">Sign Up now to start applying for your first policy</p>
+      <a href="/customer/customersignup" class="btn btn-lg btn-danger" style="border-radius: 0%;">
+        <i class="fa fa-user" aria-hidden="true"></i> Sign Up as Customer
+      </a> <a href="/adminlogin" class="btn btn-lg btn-danger" style="border-radius: 0%;">
+        <i class="fa fa-user" aria-hidden="true"></i> Login as Admin
+      </a>
+
+      <br><br>
+      {% comment %} <p class="lead text-center">“Bike insurance or two-wheeler insurance is an insurance policy that covers you against damages to your two-wheeler due to accidents, natural/man-made disasters, fire, and theft. The policy also provides law-mandated coverage against third-party liabilities such as damage to another person’s vehicle/property or injuries/death of a third party caused due to the insured two-wheeler. You can buy insurance for 2 wheelers to cover motorcycles, scooters, mopeds, etc.”
+      </p>
+      <p class="text-center">- Jeremian Say</p>
+    </div> {% endcomment %}
+  </div>
+
+  {% comment %} {% include "insurance/footer.html" %} {% endcomment %}
+</body>
+
+</html>

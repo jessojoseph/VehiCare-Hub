@@ -8,6 +8,7 @@ urlpatterns = [
     path('', views.index, name="index"),
     path('signup/', views.signup, name='signup'),
     path('login/', views.login, name='login'),
+    path('login2/', views.login2, name='login2'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('service/', views.listService, name='service'),
     path('add-service/', views.addservice, name='add-service'),
@@ -58,6 +59,13 @@ urlpatterns = [
     path('password_reset/done/',auth_views.PasswordResetDoneView.as_view(),name='password_reset_done'),
     path('reset/<uidb64>/<token>/',auth_views.PasswordResetConfirmView.as_view(),name='password_reset_confirm'),
     path('reset/done/',auth_views.PasswordResetCompleteView.as_view(),name='password_reset_complete'),
+
+
+
+
+    path('insureadmindash/', views.insureadmindash, name='insureadmindash'),
+    path('addadvisor/', views.addadvisor, name='addadvisor'),
+
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
