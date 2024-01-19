@@ -173,18 +173,12 @@ class LeaveRequest(models.Model):
     def __str__(self):
         return f"{self.worker.user.username}'s Leave Request"
 
-
-
-
-
 class Payment(models.Model):
     class PaymentStatusChoices(models.TextChoices):
         PENDING = 'pending', 'Pending'
         SUCCESSFUL = 'successful', 'Successful'
         FAILED = 'failed', 'Failed'
-    
-
-        
+         
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # Link the payment to a user
     razorpay_order_id = models.CharField(max_length=255)  # Razorpay order ID
     payment_id = models.CharField(max_length=255)  # Razorpay payment ID
@@ -250,3 +244,36 @@ class Advisor(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+class Category(models.Model):
+    category_name =models.CharField(max_length=20)
+    creation_date =models.DateField(auto_now=True)
+    def __str__(self):
+        return self.category_name
+    
+
+class Policy(models.Model):
+    category= models.ForeignKey('Category', on_delete=models.CASCADE)
+    policy_name=models.CharField(max_length=200)
+    sum_assurance=models.PositiveIntegerField()
+    premium=models.PositiveIntegerField()
+    tenure=models.PositiveIntegerField()
+    creation_date =models.DateField(auto_now=True)
+    def __str__(self):
+        return self.policy_name
+
+class PolicyRecord(models.Model):
+    customer= models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    Policy= models.ForeignKey(Policy, on_delete=models.CASCADE)
+    status = models.CharField(max_length=100,default='Pending')
+    creation_date =models.DateField(auto_now=True)
+    def __str__(self):
+        return self.policy
+    
+class Question(models.Model):
+    customer= models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    description =models.CharField(max_length=500)
+    admin_comment=models.CharField(max_length=200,default='Nothing')
+    asked_date =models.DateField(auto_now=True)
+    def __str__(self):
+        return self.description

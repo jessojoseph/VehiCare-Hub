@@ -57,16 +57,22 @@
       </thead>
       {% for t in customers %}
       <tr>
-
-        <td> {{t.get_name}}</td>
-        <td> <img src="{% static t.profile_pic.url %}" alt="Profile Pic" height="40px" width="40px" /></td>
-        <td>{{t.mobile}}</td>
-        <td>{{t.address}}</td>
-        
-        <td><a class="btn btn-success btn-sm" href="{% url 'update-customer' t.id  %}"><span class="fa fa-edit"></span></a></td>
-        <td><a class="btn btn-danger btn-sm" href="{% url 'delete-customer' t.id  %}"><span class="fa fa-trash"></span></a></td>
+          <td>{{ t.first_name }}</td>
+          <td>
+              {% if t.userprofile.profile_pic %}
+                  <img src="{{ t.userprofile.profile_pic.url }}" alt="Profile Pic" height="40px" width="40px" />
+              {% else %}
+                  <!-- Provide a default image if the profile picture is not available -->
+                  <img src="{% static 'path_to_default_image/default_profile_pic.png' %}" alt="Default Profile Pic" height="40px" width="40px" />
+              {% endif %}
+          </td>
+          <td>{{ t.mobile }}</td>
+          <td>{{ t.address }}</td>
+          <td><a class="btn btn-success btn-sm" href="{% url 'update_customer' t.id %}"><span class="fa fa-edit"></span></a></td>
+          <td><a class="btn btn-danger btn-sm" href="{% url 'delete_customer' t.id %}"><span class="fa fa-trash"></span></a></td>
       </tr>
-      {% endfor %}
+  {% endfor %}
+  
     </table>
   </div>
 </div>

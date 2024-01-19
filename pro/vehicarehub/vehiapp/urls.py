@@ -65,7 +65,48 @@ urlpatterns = [
 
     path('insureadmindash/', views.insureadmindash, name='insureadmindash'),
     path('addadvisor/', views.addadvisor, name='addadvisor'),
+    path('admin_category', views.admin_category_view,name='admin_category'),
+    path('admin_view_category', views.admin_view_category_view,name='admin_view_category'),
+    path('admin_update_category', views.admin_update_category_view,name='admin_update_category'),
+    path('update_category/<int:pk>', views.update_category_view,name='update_category'),
+    path('admin_add_category', views.admin_add_category_view,name='admin_add_category'),
+    path('admin_delete_category', views.admin_delete_category_view,name='admin_delete_category'),
+    path('delete_category/<int:pk>', views.delete_category_view,name='delete_category'),
 
+
+    path('admin_policy', views.admin_policy_view,name='admin_policy'),
+    path('admin_add_policy', views.admin_add_policy_view,name='admin_add_policy'),
+    path('admin_view_policy', views.admin_view_policy_view,name='admin_view_policy'),
+    path('admin_update_policy', views.admin_update_policy_view,name='admin_update_policy'),
+    path('update_policy/<int:pk>', views.update_policy_view,name='update_policy'),
+    path('admin_delete_policy', views.admin_delete_policy_view,name='admin_delete_policy'),
+    path('delete_policy/<int:pk>', views.delete_policy_view,name='delete_policy'),
+
+    path('admin_view_policy_holder', views.admin_view_policy_holder_view,name='admin_view_policy_holder'),
+    path('admin_view_approved_policy_holder', views.admin_view_approved_policy_holder_view,name='admin_view_approved_policy_holder'),
+    path('admin_view_disapproved_policy_holder', views.admin_view_disapproved_policy_holder_view,name='admin_view_disapproved_policy_holder'),
+    path('admin_view_waiting_policy_holder', views.admin_view_waiting_policy_holder_view,name='admin_view_waiting_policy_holder'),
+    path('approve_request/<int:pk>', views.approve_request_view,name='approve_request'),
+    path('reject_request/<int:pk>', views.disapprove_request_view,name='reject_request'),
+
+    path('admin_question/', views.admin_question_view,name='admin_question'),
+    path('update_question/<int:pk>', views.update_question_view,name='update_question'),
+
+    path('admin_view_customer/', views.admin_view_customer_view,name='admin_view_customer'),
+    path('update_customer/<int:pk>', views.update_customer_view,name='update_customer'),
+    path('delete_customer/<int:pk>', views.delete_customer_view,name='delete_customer'),
+    # path('insure1/', views.insure1, name='insure1'),
+    
+    # path('customerclick', views.customerclick_view,name='customerclick'),
+    # path('customersignup', views.customer_signup_view,name='customersignup'),
+    path('customer_dashboard', views.customer_dashboard_view,name='customer_dashboard'),
+
+    path('apply_policy', views.apply_policy_view,name='apply_policy'),
+    path('apply/<int:pk>', views.apply_view,name='apply'),
+    path('history', views.history_view,name='history'),
+
+    path('ask_question', views.ask_question_view,name='ask_question'),
+    path('question_history', views.question_history_view,name='question_history'),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

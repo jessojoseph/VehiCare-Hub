@@ -1,6 +1,6 @@
 from django import forms
 from .models import Service
-from .models import Appointment, Task, Worker
+from .models import Appointment, Task, Worker,Category, Policy, PolicyRecord, Question, UserProfile, CustomUser
 
 
 class ServiceForm(forms.ModelForm):
@@ -35,3 +35,41 @@ class TaskAssignmentForm(forms.ModelForm):
         # For example, you can filter worker choices based on availability or specialization.
         self.fields['worker'].queryset = Worker.objects.filter(is_available=True)  # Filter available workers
 
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model=Category
+        fields=['category_name']
+
+class PolicyForm(forms.ModelForm):
+    category=forms.ModelChoiceField(queryset=Category.objects.all(),empty_label="Category Name", to_field_name="id")
+    class Meta:
+        model=Policy
+        fields=['policy_name','sum_assurance','premium','tenure']
+
+
+class QuestionForm(forms.ModelForm):
+    class Meta:
+        model=Question
+        fields=['description']
+        widgets = {
+        'description': forms.Textarea(attrs={'rows': 6, 'cols': 30})
+        }
+
+class ContactusForm(forms.Form):
+    Name = forms.CharField(max_length=30)
+    Email = forms.EmailField()
+    Message = forms.CharField(max_length=500,widget=forms.Textarea(attrs={'rows': 3, 'cols': 30}))
+
+class CustomerUserForm(forms.ModelForm):
+    class Meta:
+        model=CustomUser
+        fields=['first_name','last_name','username','password']
+        widgets = {
+        'password': forms.PasswordInput()
+        }
+
+class CustomerForm(forms.ModelForm):
+    class Meta:
+        model=UserProfile
+        fields=['address','phone_no','profile_pic']

@@ -1,5 +1,5 @@
 from .forms import AppointmentForm
-from .forms import ServiceForm
+from .forms import ServiceForm, CategoryForm, PolicyForm, QuestionForm, ContactusForm, CustomerUserForm, CustomerForm
 from django.shortcuts import render, redirect
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
 from django.contrib.auth.models import User, auth
@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.contrib.auth import get_user_model
-from .models import Service, UserProfile,Worker,Slot,CustomUser,Appointment, Advisor
+from .models import Service, UserProfile,Worker,Slot,CustomUser,Appointment, Advisor, Category, PolicyRecord, Policy, Question
 from .forms import AppointmentForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -1235,3 +1235,281 @@ def send_welcome_emails(email, password, worker_name):
     recipient_list = [email]
     
     send_mail(subject, message, from_email, recipient_list)
+    
+def admin_policy_view(request):
+    return render(request,'insurance/admin_policy.html')
+
+
+
+
+def admin_category_view(request):
+    return render(request,'insurance/admin_category.html')
+
+def admin_add_category_view(request):
+    categoryForm=CategoryForm() 
+    if request.method=='POST':
+        categoryForm=CategoryForm(request.POST)
+        if categoryForm.is_valid():
+            categoryForm.save()
+            return redirect('admin_view_category')
+    return render(request,'insurance/admin_add_category.html',{'categoryForm':categoryForm})
+
+def admin_view_category_view(request):
+    categories = Category.objects.all()
+    return render(request,'insurance/admin_view_category.html',{'categories':categories})
+
+def admin_delete_category_view(request):
+    categories = Category.objects.all()
+    return render(request,'insurance/admin_delete_category.html',{'categories':categories})
+    
+def delete_category_view(request,pk):
+    category = Category.objects.get(id=pk)
+    category.delete()
+    return redirect('admin_delete_category')
+
+def admin_update_category_view(request):
+    categories = Category.objects.all()
+    return render(request,'insurance/admin_update_category.html',{'categories':categories})
+
+def update_category_view(request,pk):
+    category = Category.objects.get(id=pk)
+    categoryForm=CategoryForm(instance=category)
+    
+    if request.method=='POST':
+        categoryForm=CategoryForm(request.POST,instance=category)
+        
+        if categoryForm.is_valid():
+
+            categoryForm.save()
+            return redirect('admin_update_category')
+    return render(request,'insurance/update_category.html',{'categoryForm':categoryForm})
+  
+    
+
+def admin_policy_view(request):
+    return render(request,'insurance/admin_policy.html')
+
+
+def admin_add_policy_view(request):
+    policyForm=PolicyForm() 
+    
+    if request.method=='POST':
+        policyForm=PolicyForm(request.POST)
+        if policyForm.is_valid():
+            categoryid = request.POST.get('category')
+            category = Category.objects.get(id=categoryid)
+            
+            policy = policyForm.save(commit=False)
+            policy.category=category
+            policy.save()
+            return redirect('admin_view_policy')
+    return render(request,'insurance/admin_add_policy.html',{'policyForm':policyForm})
+
+def admin_view_policy_view(request):
+    policies = Policy.objects.all()
+    return render(request,'insurance/admin_view_policy.html',{'policies':policies})
+
+def admin_update_policy_view(request):
+    policies = Policy.objects.all()
+    return render(request,'insurance/admin_update_policy.html',{'policies':policies})
+
+def update_policy_view(request,pk):
+    policy = Policy.objects.get(id=pk)
+    policyForm=PolicyForm(instance=policy)
+    
+    if request.method=='POST':
+        policyForm=PolicyForm(request.POST,instance=policy)
+        
+        if policyForm.is_valid():
+
+            categoryid = request.POST.get('category')
+            category = Category.objects.get(id=categoryid)
+            
+            policy = policyForm.save(commit=False)
+            policy.category=category
+            policy.save()
+           
+            return redirect('admin_update_policy')
+    return render(request,'insurance/update_policy.html',{'policyForm':policyForm})
+  
+  
+def admin_delete_policy_view(request):
+    policies = Policy.objects.all()
+    return render(request,'insurance/admin_delete_policy.html',{'policies':policies})
+    
+def delete_policy_view(request,pk):
+    policy = Policy.objects.get(id=pk)
+    policy.delete()
+    return redirect('admin_delete_policy')
+
+def admin_view_policy_holder_view(request):
+    policyrecords = PolicyRecord.objects.all()
+    return render(request,'insurance/admin_view_policy_holder.html',{'policyrecords':policyrecords})
+
+def admin_view_approved_policy_holder_view(request):
+    policyrecords = PolicyRecord.objects.all().filter(status='Approved')
+    return render(request,'insurance/admin_view_approved_policy_holder.html',{'policyrecords':policyrecords})
+
+def admin_view_disapproved_policy_holder_view(request):
+    policyrecords = PolicyRecord.objects.all().filter(status='Disapproved')
+    return render(request,'insurance/admin_view_disapproved_policy_holder.html',{'policyrecords':policyrecords})
+
+def admin_view_waiting_policy_holder_view(request):
+    policyrecords = PolicyRecord.objects.all().filter(status='Pending')
+    return render(request,'insurance/admin_view_waiting_policy_holder.html',{'policyrecords':policyrecords})
+
+def approve_request_view(request,pk):
+    policyrecords = PolicyRecord.objects.get(id=pk)
+    policyrecords.status='Approved'
+    policyrecords.save()
+    return redirect('admin_view_policy_holder')
+
+def disapprove_request_view(request,pk):
+    policyrecords = PolicyRecord.objects.get(id=pk)
+    policyrecords.status='Disapproved'
+    policyrecords.save()
+    return redirect('admin_view_policy_holder')
+
+
+def admin_question_view(request):
+    questions = Question.objects.all()
+    return render(request,'insurance/admin_question.html',{'questions':questions})
+
+def update_question_view(request,pk):
+    question = Question.objects.get(id=pk)
+    questionForm=QuestionForm(instance=question)
+    
+    if request.method=='POST':
+        questionForm=QuestionForm(request.POST,instance=question)
+        
+        if questionForm.is_valid():
+
+            admin_comment = request.POST.get('admin_comment')
+            
+            
+            question = questionForm.save(commit=False)
+            question.admin_comment=admin_comment
+            question.save()
+           
+            return redirect('admin_question')
+    return render(request,'insurance/update_question.html',{'questionForm':questionForm})
+
+def aboutus_view(request):
+    return render(request,'insurance/aboutus.html')
+
+def contactus_view(request):
+    sub = ContactusForm()
+    if request.method == 'POST':
+        sub = ContactusForm(request.POST)
+        if sub.is_valid():
+            email = sub.cleaned_data['Email']
+            name=sub.cleaned_data['Name']
+            message = sub.cleaned_data['Message']
+            send_mail(str(name)+' || '+str(email),message,settings.EMAIL_HOST_USER, settings.EMAIL_RECEIVING_USER, fail_silently = False)
+            return render(request, 'insurance/contactussuccess.html')
+    return render(request, 'insurance/contactus.html', {'form':sub})
+
+def admin_view_customer_view(request):
+    customers= CustomUser.objects.filter(role=2)
+    return render(request,'insurance/admin_view_customer.html',{'customers':customers})
+
+# views.py
+from .forms import CustomerUserForm, CustomerForm
+
+def update_customer_view(request, pk):
+    customer = CustomUser.objects.get(id=pk)
+    user_profile = UserProfile.objects.get(user=customer)
+
+    userForm = CustomerUserForm(instance=customer)
+    customerForm = CustomerForm(instance=user_profile)
+
+    mydict = {'userForm': userForm, 'customerForm': customerForm}
+
+    if request.method == 'POST':
+        userForm = CustomerUserForm(request.POST, instance=customer)
+        customerForm = CustomerForm(request.POST, request.FILES, instance=user_profile)
+
+        if userForm.is_valid() and customerForm.is_valid():
+            user = userForm.save()
+            user.set_password(user.password)
+            user.save()
+            customer_profile = customerForm.save(commit=False)
+            customer_profile.user = user
+            customer_profile.save()
+            return redirect('admin_view_customer')
+
+    return render(request, 'insurance/update_customer.html', context=mydict)
+
+def delete_customer_view(request,pk):
+    customer=CustomUser.objects.get(id=pk)
+    user=User.objects.get(id=customer.user_id)
+    user.delete()
+    customer.delete()
+    return render('/admin_view_customer')
+
+def insureadmindash(request):
+    dict={
+        'total_user':CustomUser.objects.filter(role=2).count(),
+        'total_policy':Policy.objects.all().count(),
+        'total_category':Category.objects.all().count(),
+        'total_question':Question.objects.all().count(),
+        'total_policy_holder':PolicyRecord.objects.all().count(),
+        'approved_policy_holder':PolicyRecord.objects.all().filter(status='Approved').count(),
+        'disapproved_policy_holder':PolicyRecord.objects.all().filter(status='Disapproved').count(),
+        'waiting_policy_holder':PolicyRecord.objects.all().filter(status='Pending').count(),
+    }
+    return render(request,'insurance/insureadmindash.html',context=dict)
+
+
+
+
+
+def customer_dashboard_view(request):
+    dict={
+        'customer':CustomUser.objects.get(id=request.user.id),
+        'available_policy':Policy.objects.all().count(),
+        'applied_policy':PolicyRecord.objects.all().filter(customer=CustomUser.objects.get(id=request.user.id)).count(),
+        'total_category':Category.objects.all().count(),
+        'total_question':Question.objects.all().filter(customer=CustomUser.objects.get(id=request.user.id)).count(),
+
+    }
+    return render(request,'insurance/customer_dashboard.html',context=dict)
+
+def apply_policy_view(request):
+    customer = CustomUser.objects.get(id=request.user.id)
+    policies = Policy.objects.all()
+    return render(request,'insurance/apply_policy.html',{'policies':policies,'customer':customer})
+
+def apply_view(request,pk):
+    customer = CustomUser.objects.get(id=request.user.id)
+    policy = Policy.objects.get(id=pk)
+    policyrecord = PolicyRecord()
+    policyrecord.Policy = policy
+    policyrecord.customer = customer
+    policyrecord.save()
+    return redirect('history')
+
+def history_view(request):
+    customer = CustomUser.objects.get(id=request.user.id)
+    policies = PolicyRecord.objects.all().filter(customer=customer)
+    return render(request,'insurance/history.html',{'policies':policies,'customer':customer})
+
+def ask_question_view(request):
+    customer = CustomUser.objects.get(id=request.user.id)
+    questionForm=QuestionForm() 
+    
+    if request.method=='POST':
+        questionForm=QuestionForm(request.POST)
+        if questionForm.is_valid():
+            
+            question = questionForm.save(commit=False)
+            question.customer=customer
+            question.save()
+            return redirect('question_history')
+    return render(request,'insurance/ask_question.html',{'questionForm':questionForm,'customer':customer})
+
+def question_history_view(request):
+    customer = CustomUser.objects.get(id=request.user.id)
+    questions = Question.objects.all().filter(customer=customer)
+    return render(request,'insurance/question_history.html',{'questions':questions,'customer':customer})
+
