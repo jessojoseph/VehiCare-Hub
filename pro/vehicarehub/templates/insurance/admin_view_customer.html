@@ -63,11 +63,11 @@
                   <img src="{{ t.userprofile.profile_pic.url }}" alt="Profile Pic" height="40px" width="40px" />
               {% else %}
                   <!-- Provide a default image if the profile picture is not available -->
-                  <img src="{% static 'path_to_default_image/default_profile_pic.png' %}" alt="Default Profile Pic" height="40px" width="40px" />
+                  <img src="{% static 'images/admin-icn.png' %}" alt="Default Profile Pic" height="40px" width="40px" />
               {% endif %}
           </td>
-          <td>{{ t.mobile }}</td>
-          <td>{{ t.address }}</td>
+          <td>{{ t.phone_no }}</td>
+          <td>{{ t.country }}</td>
           <td><a class="btn btn-success btn-sm" href="{% url 'update_customer' t.id %}"><span class="fa fa-edit"></span></a></td>
           <td><a class="btn btn-danger btn-sm" href="{% url 'delete_customer' t.id %}"><span class="fa fa-trash"></span></a></td>
       </tr>

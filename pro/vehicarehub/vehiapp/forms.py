@@ -1,6 +1,6 @@
 from django import forms
 from .models import Service
-from .models import Appointment, Task, Worker,Category, Policy, PolicyRecord, Question, UserProfile, CustomUser
+from .models import Appointment, Task, Worker,Category, Policy, PolicyRecord, Question, UserProfile, CustomUser, AccidentClaim
 
 
 class ServiceForm(forms.ModelForm):
@@ -47,7 +47,6 @@ class PolicyForm(forms.ModelForm):
         model=Policy
         fields=['policy_name','sum_assurance','premium','tenure']
 
-
 class QuestionForm(forms.ModelForm):
     class Meta:
         model=Question
@@ -73,3 +72,18 @@ class CustomerForm(forms.ModelForm):
     class Meta:
         model=UserProfile
         fields=['address','phone_no','profile_pic']
+
+
+class InsuranceApplicationForm(forms.Form):
+    vehicle_number = forms.CharField(label='Vehicle Number', max_length=100)
+    purchase_year = forms.IntegerField(label='Purchase Year')
+    full_name = forms.CharField(label='Full Name', max_length=255)
+    mob_number = forms.CharField(label='Mobile Number', max_length=15)
+    rc_number = forms.CharField(label='RC Number', max_length=100)
+    chassis_number = forms.CharField(label='Chassis Number', max_length=100)
+
+
+class AccidentClaimForm(forms.ModelForm):
+    class Meta:
+        model = AccidentClaim
+        fields = ['incident_type', 'incident_date', 'description', 'document']

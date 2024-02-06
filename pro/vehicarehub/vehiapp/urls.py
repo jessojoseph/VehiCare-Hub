@@ -102,11 +102,20 @@ urlpatterns = [
     path('customer_dashboard', views.customer_dashboard_view,name='customer_dashboard'),
 
     path('apply_policy', views.apply_policy_view,name='apply_policy'),
-    path('apply/<int:pk>', views.apply_view,name='apply'),
+    # path('apply/<int:pk>/', views.apply_insurance_view, name='apply'),
+    path('apply/<int:pk>/', views.apply_insurance_view, name='apply_insurance'),
     path('history', views.history_view,name='history'),
+
+    path('apply_insurance/<int:pk>/', views.apply_insurance_view, name='apply_insurance'),
+    path('history_claim/', views.history_claim_view, name='history_claim'),
+    path('admin_history_claim/', views.admin_history_claim_view, name='admin_history_claim'),
+
 
     path('ask_question', views.ask_question_view,name='ask_question'),
     path('question_history', views.question_history_view,name='question_history'),
+
+    path('submit_claim/', views.submit_claim_view, name='submit_claim'),
+
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

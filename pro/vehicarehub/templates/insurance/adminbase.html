@@ -181,7 +181,7 @@
 ">
     <center>
 
-      <img src="{% static "image/admin-icn.png" %}" class="profile_image" alt="">
+      <img src="{% static "images/admin-icn.png" %}" class="profile_image" alt="">
       <h5 style="color:rgb(230, 230, 230)">INSURANCE</h5>
 
     </center>
@@ -190,6 +190,8 @@
     <a href="{% url "admin_view_customer" %}"><i class="fas fa-users"></i><span>Customer</span></a>
     <a href="{% url 'admin_category' %}"><i class="fas fa-list-alt"></i><span>Category</span></a>
     <a href="{% url 'admin_policy' %}"><i class="fab fa-product-hunt"></i><span>Policy</span></a>
+    <a href="{% url 'admin_history_claim' %}"><i class="fas fa-camera"></i><span>Claims</span></a>
+
     <a href="{% url "admin_question" %}"><i class="fas fa-question-circle"></i><span>Questions</span></a>
     
 

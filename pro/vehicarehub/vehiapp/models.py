@@ -267,8 +267,15 @@ class PolicyRecord(models.Model):
     Policy= models.ForeignKey(Policy, on_delete=models.CASCADE)
     status = models.CharField(max_length=100,default='Pending')
     creation_date =models.DateField(auto_now=True)
+
+    vehicle_number = models.CharField(max_length=100,default='****')
+    purchase_year = models.IntegerField(default=20)
+    full_name = models.CharField(max_length=255,default='****')
+    mob_number = models.CharField(max_length=15, default='****')
+    rc_number = models.CharField(max_length=100,default='****')
+    chassis_number = models.CharField(max_length=100, default='****')
     def __str__(self):
-        return self.policy
+        return f"{self.Policy.policy_name} - {self.customer.username}"
     
 class Question(models.Model):
     customer= models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -277,3 +284,18 @@ class Question(models.Model):
     asked_date =models.DateField(auto_now=True)
     def __str__(self):
         return self.description
+
+
+    
+class AccidentClaim(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    incident_type = models.CharField(max_length=100)
+    incident_date = models.DateField()  # Change the field name to incident_date
+    description = models.TextField()
+    document = models.FileField(upload_to='accident_claims/', blank=True, null=True)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    is_assigned = models.BooleanField(default=False)
+    assigned_to = models.ForeignKey(Advisor, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s Accident Claim - {self.incident_type}"

@@ -1,5 +1,5 @@
 from .forms import AppointmentForm
-from .forms import ServiceForm, CategoryForm, PolicyForm, QuestionForm, ContactusForm, CustomerUserForm, CustomerForm
+from .forms import ServiceForm, CategoryForm, PolicyForm, QuestionForm, ContactusForm, CustomerUserForm, CustomerForm, InsuranceApplicationForm, AccidentClaimForm
 from django.shortcuts import render, redirect
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
 from django.contrib.auth.models import User, auth
@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.contrib.auth import get_user_model
-from .models import Service, UserProfile,Worker,Slot,CustomUser,Appointment, Advisor, Category, PolicyRecord, Policy, Question
+from .models import Service, UserProfile,Worker,Slot,CustomUser,Appointment, Advisor, Category, PolicyRecord, Policy, Question, AccidentClaim
 from .forms import AppointmentForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -1471,6 +1471,7 @@ def customer_dashboard_view(request):
         'applied_policy':PolicyRecord.objects.all().filter(customer=CustomUser.objects.get(id=request.user.id)).count(),
         'total_category':Category.objects.all().count(),
         'total_question':Question.objects.all().filter(customer=CustomUser.objects.get(id=request.user.id)).count(),
+        'total_claims':AccidentClaim.objects.all().count(),
 
     }
     return render(request,'insurance/customer_dashboard.html',context=dict)
@@ -1513,3 +1514,61 @@ def question_history_view(request):
     questions = Question.objects.all().filter(customer=customer)
     return render(request,'insurance/question_history.html',{'questions':questions,'customer':customer})
 
+def apply_insurance_view(request, pk):
+    policy = get_object_or_404(Policy, id=pk)
+
+    if request.method == 'POST':
+        form = InsuranceApplicationForm(request.POST)
+        if form.is_valid():
+            # Process the form data and save the insurance application record
+            application_record = PolicyRecord()
+            application_record.Policy = policy 
+            application_record.customer = request.user
+            application_record.vehicle_number = form.cleaned_data['vehicle_number']
+            application_record.purchase_year = form.cleaned_data['purchase_year']
+            application_record.full_name = form.cleaned_data['full_name']
+            application_record.mob_number = form.cleaned_data['mob_number']
+            application_record.rc_number = form.cleaned_data['rc_number']
+            application_record.chassis_number = form.cleaned_data['chassis_number']
+            application_record.save()
+            return redirect('history') 
+    else:
+        form = InsuranceApplicationForm()
+
+    return render(request, 'insurance/apply_insurance.html', {'form': form, 'policy': policy})
+
+
+def submit_claim_view(request):
+    if request.method == 'POST':
+        claimForm = AccidentClaimForm(request.POST, request.FILES)
+        if claimForm.is_valid():
+            claim = claimForm.save(commit=False)
+            claim.user = request.user
+            claim.save()
+            print("Claim submitted successfully!")
+            return redirect('submit_claim')  # Redirect to a confirmation page or wherever you want
+        else:
+            print("Form errors:", claimForm.errors)
+    else:
+        claimForm = AccidentClaimForm()
+
+    return render(request, 'insurance/submit_claim.html', {'claimForm': claimForm})
+
+
+
+def history_claim_view(request):
+    accident_claims = AccidentClaim.objects.all()
+
+    context = {
+        'accident_claims': accident_claims,
+    }
+    return render(request, 'insurance/history_claim.html', context)
+
+
+def admin_history_claim_view(request):
+    accident_claims = AccidentClaim.objects.all()
+
+    context = {
+        'accident_claims': accident_claims,
+    }
+    return render(request, 'insurance/admin_history_claim.html', context)

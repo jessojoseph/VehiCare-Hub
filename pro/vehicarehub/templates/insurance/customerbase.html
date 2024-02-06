@@ -167,7 +167,7 @@
       <i style="padding-left: 60px;margin-top: 17px;" class="fas fa-bars" id="sidebar_btn"></i>
     </label>
     <div class="left_area">
-      <h3>Insurance Management</h3>
+      <h3>VehiCare Hub</h3>
     </div>
     <div class="right_area">
       <a href="/logout" class="logout_btn"><i class="fa fa-power-off"></i> Logout</a>
@@ -178,7 +178,18 @@
   <div class="sidebar" style="margin-top:60px;">
     <center>
 
-      <img src="{% static customer.profile_pic.url %}" class="profile_image" alt="">
+      {% if request.user.userprofile %}
+      {% if request.user.userprofile.profile_pic %}
+          <img src="{{ request.user.userprofile.profile_pic.url }}" class="profile_image" alt="">
+      {% else %}
+          <!-- Provide a default image if the profile picture is not available -->
+          <img src="{% static 'path_to_default_image/default_profile_pic.png' %}" class="profile_image" alt="Default Profile Pic">
+      {% endif %}
+  {% else %}
+      <!-- Handle the case where userprofile is not available -->
+      <p>No user profile available.</p>
+  {% endif %}
+  
       <h4>{{request.user.first_name}}</h4>
       <h6 style="color: rgb(255, 255, 255);">( Customer )</h6>
 
@@ -190,6 +201,9 @@
 
     <a href="{% url "ask_question" %}"><i class="fas fa-question-circle"></i><span>Ask Question</span></a>
     <a href="{% url "question_history" %}"><i class="fas fa-sync-alt"></i><span>Question History</span></a>
+    <a href="{% url 'submit_claim' %}"><i class="fas fa-camera"></i><span>Request Claim</span></a>
+
+
   </div>
   <!--sidebar end-->
 
