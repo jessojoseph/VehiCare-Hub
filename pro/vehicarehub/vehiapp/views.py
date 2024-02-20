@@ -1,5 +1,5 @@
 from .forms import AppointmentForm
-from .forms import ServiceForm, CategoryForm, PolicyForm, QuestionForm, ContactusForm, CustomerUserForm, CustomerForm, InsuranceApplicationForm, AccidentClaimForm
+from .forms import ServiceForm, CategoryForm, PolicyForm, QuestionForm, ContactusForm, CustomerUserForm, CustomerForm, InsuranceApplicationForm
 from django.shortcuts import render, redirect
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
 from django.contrib.auth.models import User, auth
@@ -1537,23 +1537,28 @@ def apply_insurance_view(request, pk):
 
     return render(request, 'insurance/apply_insurance.html', {'form': form, 'policy': policy})
 
-
 def submit_claim_view(request):
     if request.method == 'POST':
-        claimForm = AccidentClaimForm(request.POST, request.FILES)
-        if claimForm.is_valid():
-            claim = claimForm.save(commit=False)
-            claim.user = request.user
-            claim.save()
-            print("Claim submitted successfully!")
-            return redirect('submit_claim')  # Redirect to a confirmation page or wherever you want
-        else:
-            print("Form errors:", claimForm.errors)
+        # Retrieve form data directly from the request
+        incident_type = request.POST.get('incident_type')
+        incident_date = request.POST.get('incident_date')
+        description = request.POST.get('description')
+        document = request.FILES.get('documents')
+
+        user = request.user
+        accident_claim = AccidentClaim(
+            user=user,
+            incident_type=incident_type,
+            incident_date=incident_date,
+            description=description,
+            document=document
+        )
+        accident_claim.save()
+
+        print("Claim submitted successfully!")
+        return HttpResponse("Claim submitted successfully!")
     else:
-        claimForm = AccidentClaimForm()
-
-    return render(request, 'insurance/submit_claim.html', {'claimForm': claimForm})
-
+        return render(request, 'insurance/submit_claim.html')
 
 
 def history_claim_view(request):
@@ -1572,3 +1577,42 @@ def admin_history_claim_view(request):
         'accident_claims': accident_claims,
     }
     return render(request, 'insurance/admin_history_claim.html', context)
+
+def admin_history_claim_view(request):
+    accident_claims = AccidentClaim.objects.all()
+
+    context = {
+        'accident_claims': accident_claims,
+    }
+    return render(request, 'insurance/admin_history_claim.html', context)
+
+def approve_claim(request, claim_id):
+    # Get the AccidentClaim instance
+    accident_claim = get_object_or_404(AccidentClaim, id=claim_id)
+
+    # Check if the claim is in 'Pending' status
+    if accident_claim.status == 'Pending':
+        # Update the status to 'Approved'
+        accident_claim.status = 'Approved'
+        accident_claim.save()
+
+    # Redirect back to the admin history view
+    return redirect('admin_history_claim')
+
+def reject_claim(request, claim_id):
+    # Get the AccidentClaim instance
+    accident_claim = get_object_or_404(AccidentClaim, id=claim_id)
+
+    # Check if the claim is in 'Pending' status
+    if accident_claim.status == 'Pending':
+        # Update the status to 'Rejected'
+        accident_claim.status = 'Rejected'
+        
+        # Get rejection reason from the form submission
+        rejection_reason = request.POST.get('rejection_reason')
+        accident_claim.rejection_reason = rejection_reason
+
+        accident_claim.save()
+
+    # Redirect back to the user's claims history view
+    return redirect('admin_claims_history')

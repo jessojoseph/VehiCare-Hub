@@ -1,6 +1,6 @@
 from django import forms
 from .models import Service
-from .models import Appointment, Task, Worker,Category, Policy, PolicyRecord, Question, UserProfile, CustomUser, AccidentClaim
+from .models import Appointment, Task, Worker,Category, Policy, Question, UserProfile, CustomUser
 
 
 class ServiceForm(forms.ModelForm):
@@ -83,7 +83,3 @@ class InsuranceApplicationForm(forms.Form):
     chassis_number = forms.CharField(label='Chassis Number', max_length=100)
 
 
-class AccidentClaimForm(forms.ModelForm):
-    class Meta:
-        model = AccidentClaim
-        fields = ['incident_type', 'incident_date', 'description', 'document']

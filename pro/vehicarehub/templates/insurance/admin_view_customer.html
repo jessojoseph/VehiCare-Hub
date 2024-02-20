@@ -52,7 +52,7 @@
           <th>Address</th>
          
           <th>Update</th>
-          <th>Delete</th>
+          {% comment %} <th>Delete</th> {% endcomment %}
         </tr>
       </thead>
       {% for t in customers %}
@@ -66,10 +66,10 @@
                   <img src="{% static 'images/admin-icn.png' %}" alt="Default Profile Pic" height="40px" width="40px" />
               {% endif %}
           </td>
-          <td>{{ t.phone_no }}</td>
-          <td>{{ t.country }}</td>
+          <td>{{ t.userprofile.phone_no }}</td>
+          <td>{{ t.userprofile.country }}</td>
           <td><a class="btn btn-success btn-sm" href="{% url 'update_customer' t.id %}"><span class="fa fa-edit"></span></a></td>
-          <td><a class="btn btn-danger btn-sm" href="{% url 'delete_customer' t.id %}"><span class="fa fa-trash"></span></a></td>
+          {% comment %} <td><a class="btn btn-danger btn-sm" href="{% url 'delete_customer' t.id %}"><span class="fa fa-trash"></span></a></td> {% endcomment %}
       </tr>
   {% endfor %}
   

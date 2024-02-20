@@ -109,11 +109,12 @@ urlpatterns = [
     path('apply_insurance/<int:pk>/', views.apply_insurance_view, name='apply_insurance'),
     path('history_claim/', views.history_claim_view, name='history_claim'),
     path('admin_history_claim/', views.admin_history_claim_view, name='admin_history_claim'),
+    path('approve_claim/<int:claim_id>/', views.approve_claim, name='approve_claim'),
+    path('reject_claim/<int:claim_id>/', views.reject_claim, name='reject_claim'),
 
 
     path('ask_question', views.ask_question_view,name='ask_question'),
     path('question_history', views.question_history_view,name='question_history'),
-
     path('submit_claim/', views.submit_claim_view, name='submit_claim'),
 
 

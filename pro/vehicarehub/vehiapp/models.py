@@ -286,16 +286,23 @@ class Question(models.Model):
         return self.description
 
 
-    
 class AccidentClaim(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+    ]
+
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     incident_type = models.CharField(max_length=100)
-    incident_date = models.DateField()  # Change the field name to incident_date
+    incident_date = models.DateField() 
     description = models.TextField()
     document = models.FileField(upload_to='accident_claims/', blank=True, null=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
     is_assigned = models.BooleanField(default=False)
     assigned_to = models.ForeignKey(Advisor, on_delete=models.SET_NULL, null=True, blank=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
+    rejection_reason = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.user.username}'s Accident Claim - {self.incident_type}"
+        return f"{self.user.username}'s Accident Claim - {self.incident_type} ({self.status})"
