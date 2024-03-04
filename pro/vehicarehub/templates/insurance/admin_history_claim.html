@@ -41,10 +41,14 @@
             border-radius: 0.2rem;
         }
 
-        /* Add flexbox style to arrange buttons horizontally */
         .action-row {
             display: flex;
-            justify-content: space-around; /* Adjust as needed */
+            justify-content: space-around;
+            margin-top: 10px;
+        }
+
+        .action-row button {
+            margin-right: 10px;
         }
     </style>
 </head>
@@ -63,7 +67,9 @@
                     <th>Accident Date</th>
                     <th>Description</th>
                     <th>Submitted Date</th>
-                    <th>Documents</th>
+                    <th>FIR Document</th>
+                    <th>DL Document</th>
+                    <th>RC Document</th>
                     <th>Status</th>
                     <th>Actions</th> <!-- New column for approve/reject buttons -->
                 </tr>
@@ -76,10 +82,24 @@
                 <td>{{ claim.description }}</td>
                 <td>{{ claim.submitted_at }}</td>
                 <td>
-                    {% if claim.document %}
-                        <a href="{{ claim.document.url }}" target="_blank">View Document</a>
+                    {% if claim.fir_document %}
+                        <a href="{{ claim.fir_document.url }}" target="_blank">View FIR Document</a>
                     {% else %}
-                        No document submitted
+                        No FIR document submitted
+                    {% endif %}
+                </td>
+                <td>
+                    {% if claim.dl_document %}
+                        <a href="{{ claim.dl_document.url }}" target="_blank">View DL Document</a>
+                    {% else %}
+                        No DL document submitted
+                    {% endif %}
+                </td>
+                <td>
+                    {% if claim.rc_document %}
+                        <a href="{{ claim.rc_document.url }}" target="_blank">View RC Document</a>
+                    {% else %}
+                        No RC document submitted
                     {% endif %}
                 </td>
                 <td>{{ claim.status }}</td>

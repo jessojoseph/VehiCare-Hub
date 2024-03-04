@@ -1,0 +1,110 @@
+{% extends 'insurance/survayorbase.html' %}
+{% load widget_tweaks %}
+{% block content %}
+<head>
+  <style media="screen">
+    /* Add your existing styles here */
+    input[type=text], select,input[type=number] ,input[type=password], textarea{
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+    
+      input[type=submit] {
+        width: 100%;
+        background-color: #4CAF50;
+        color: white;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+    
+      input[type=submit]:hover {
+        background-color: #45a049;
+      }
+    
+    
+       label #sidebar_btn {
+          z-index: 1;
+          color: #fff;
+          position: fixed;
+          cursor: pointer;
+          left: 300px;
+          padding-left: 60px;
+          margin-top:15px;
+          font-size: 20px;
+          
+          transition: 0.5s;
+          transition-property: color;
+        }
+        .left_area{
+          margin-top:8px;
+        }
+    /* Additional styles for better alignment */
+    .form-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .form-group label {
+        margin-bottom: 5px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+    }
+
+  </style>
+</head>
+
+<br><br>
+<h3 style="text-align:center;">UPDATE CUSTOMER</h3>
+<div>
+  <form method="post" autocomplete="off" enctype="multipart/form-data" style="margin-left:200px;margin-right:200px;">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label for="first_name">First Name</label>
+        <input type="text" name="first_name" class="form-control" placeholder="First Name" value="{{ user.first_name }}">
+      </div>
+
+      <div class="form-group">
+        <label for="last_name">Last Name</label>
+        <input type="text" name="last_name" class="form-control" placeholder="Last Name" value="{{ user.last_name }}">
+      </div>
+
+      <div class="form-group">
+        <label for="Contact">Contact</label>
+        <input type="text" name="mobile" class="form-control" placeholder="Contact" value="{{ user.mobile }}">
+      </div>
+
+      <div class="form-group">
+        <label for="address">Address</label>
+        <input type="text" name="address" class="form-control" placeholder="Address" value="{{ user.address }}">
+      </div>
+{% comment %} 
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" name="username" class="form-control" placeholder="Username" value="{{ userForm.username.value }}">
+      </div> {% endcomment %}
+
+      <div class="form-group">
+        <label for="profile_pic">Profile Picture</label>
+        <input type="file" name="profile_pic" class="form-control" placeholder="Profile Picture">
+      </div>
+
+      <input type="submit" value="Update">
+  </form>
+</div>
+
+<br><br><br><br><br><br><br><br>
+{% endblock content %}

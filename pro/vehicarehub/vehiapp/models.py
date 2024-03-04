@@ -34,11 +34,14 @@ class CustomUser(AbstractUser):
     WORKER = 1
     CUSTOMER = 2
     ADVISOR = 3
+    SURVEYOR = 4
 
     ROLE_CHOICES = (
         (WORKER, 'Worker'),
         (CUSTOMER, 'Customer'),
         (ADVISOR, 'Advisor'),
+        (SURVEYOR, 'Surveyor'),
+
 
     )
 
@@ -285,7 +288,15 @@ class Question(models.Model):
     def __str__(self):
         return self.description
 
+class Surveyor(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100, blank=True, null=True)  # Make it optional
+    experience = models.PositiveIntegerField(null=True)
+    is_available = models.BooleanField(default=True)
 
+    def __str__(self):
+        return self.user.username
+    
 class AccidentClaim(models.Model):
     STATUS_CHOICES = [
         ('Pending', 'Pending'),
@@ -295,14 +306,21 @@ class AccidentClaim(models.Model):
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     incident_type = models.CharField(max_length=100)
-    incident_date = models.DateField() 
+    incident_date = models.DateField()
     description = models.TextField()
-    document = models.FileField(upload_to='accident_claims/', blank=True, null=True)
+    fir_document = models.FileField(upload_to='accident_claims/', blank=True, null=True, verbose_name='FIR Document')
+    dl_document = models.FileField(upload_to='accident_claims/', blank=True, null=True, verbose_name='Driving Licence Document')
+    rc_document = models.FileField(upload_to='accident_claims/', blank=True, null=True, verbose_name='Registration Certificate Document')
     submitted_at = models.DateTimeField(auto_now_add=True)
     is_assigned = models.BooleanField(default=False)
-    assigned_to = models.ForeignKey(Advisor, on_delete=models.SET_NULL, null=True, blank=True)
+    assigned_advisor = models.ForeignKey(Advisor, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_advisor')
+    assigned_surveyor = models.ForeignKey(Surveyor, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_surveyor')
+
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
     rejection_reason = models.TextField(blank=True, null=True)
 
+
     def __str__(self):
         return f"{self.user.username}'s Accident Claim - {self.incident_type} ({self.status})"
+
+

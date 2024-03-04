@@ -112,6 +112,14 @@ urlpatterns = [
     path('approve_claim/<int:claim_id>/', views.approve_claim, name='approve_claim'),
     path('reject_claim/<int:claim_id>/', views.reject_claim, name='reject_claim'),
 
+    path('admin_add_surveyor/', views.register_surveyor, name='admin_add_surveyor'),
+
+    path('survayordashboard/', views.survayor_dashboard, name='survayordashboard'),
+    path('survayorbase/', views.survayor_base_dashboard, name='survayorbase'),
+    path('update_survayor/<int:pk>/', views.update_survayor_view, name='update_survayor'),
+    path('admin_view_survayor/', views.admin_view_survayor_view, name='admin_view_survayor'),
+    path('admin_assign_claim/', views.assign_claim_view, name='admin_assign_claim'),
+    path('surveyor_assigned_claims/', views.surveyor_assigned_claims, name='surveyor_assigned_claims'),
 
     path('ask_question', views.ask_question_view,name='ask_question'),
     path('question_history', views.question_history_view,name='question_history'),

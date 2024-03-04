@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.contrib.auth import get_user_model
-from .models import Service, UserProfile,Worker,Slot,CustomUser,Appointment, Advisor, Category, PolicyRecord, Policy, Question, AccidentClaim
+from .models import Service, UserProfile,Worker,Slot,CustomUser,Appointment, Advisor, Category, PolicyRecord, Policy, Question, AccidentClaim, Surveyor
 from .forms import AppointmentForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -402,6 +402,8 @@ def login(request):
                     return redirect('workerdashboard')  # Redirect workers to the worker dashboard
                 elif user.role == CustomUser.ADVISOR:
                     return redirect('insureadmindash')  # Redirect advisors to the insure1 page
+                elif user.role == CustomUser.SURVEYOR:
+                    return redirect('survayordashboard')  # Redirect surveyors to the surveyordashboard page
                 else:
                     return redirect('index')  # Redirect other roles to the index page
             else:
@@ -412,6 +414,7 @@ def login(request):
             return redirect('login')
     else:
         return render(request, 'login.html')
+
 
 
 def signup(request):
@@ -1413,7 +1416,6 @@ def admin_view_customer_view(request):
     customers= CustomUser.objects.filter(role=2)
     return render(request,'insurance/admin_view_customer.html',{'customers':customers})
 
-# views.py
 from .forms import CustomerUserForm, CustomerForm
 
 def update_customer_view(request, pk):
@@ -1457,6 +1459,8 @@ def insureadmindash(request):
         'approved_policy_holder':PolicyRecord.objects.all().filter(status='Approved').count(),
         'disapproved_policy_holder':PolicyRecord.objects.all().filter(status='Disapproved').count(),
         'waiting_policy_holder':PolicyRecord.objects.all().filter(status='Pending').count(),
+        'total_survayor':CustomUser.objects.filter(role=4).count(),
+
     }
     return render(request,'insurance/insureadmindash.html',context=dict)
 
@@ -1537,13 +1541,15 @@ def apply_insurance_view(request, pk):
 
     return render(request, 'insurance/apply_insurance.html', {'form': form, 'policy': policy})
 
+
 def submit_claim_view(request):
     if request.method == 'POST':
-        # Retrieve form data directly from the request
         incident_type = request.POST.get('incident_type')
         incident_date = request.POST.get('incident_date')
         description = request.POST.get('description')
-        document = request.FILES.get('documents')
+        fir_document = request.FILES.get('fir_document')
+        dl_document = request.FILES.get('dl_document')
+        rc_document = request.FILES.get('rc_document')
 
         user = request.user
         accident_claim = AccidentClaim(
@@ -1551,7 +1557,9 @@ def submit_claim_view(request):
             incident_type=incident_type,
             incident_date=incident_date,
             description=description,
-            document=document
+            fir_document=fir_document,
+            dl_document=dl_document,
+            rc_document=rc_document
         )
         accident_claim.save()
 
@@ -1587,32 +1595,154 @@ def admin_history_claim_view(request):
     return render(request, 'insurance/admin_history_claim.html', context)
 
 def approve_claim(request, claim_id):
-    # Get the AccidentClaim instance
     accident_claim = get_object_or_404(AccidentClaim, id=claim_id)
 
-    # Check if the claim is in 'Pending' status
     if accident_claim.status == 'Pending':
-        # Update the status to 'Approved'
         accident_claim.status = 'Approved'
         accident_claim.save()
 
-    # Redirect back to the admin history view
     return redirect('admin_history_claim')
 
 def reject_claim(request, claim_id):
-    # Get the AccidentClaim instance
     accident_claim = get_object_or_404(AccidentClaim, id=claim_id)
 
-    # Check if the claim is in 'Pending' status
     if accident_claim.status == 'Pending':
-        # Update the status to 'Rejected'
         accident_claim.status = 'Rejected'
         
-        # Get rejection reason from the form submission
         rejection_reason = request.POST.get('rejection_reason')
         accident_claim.rejection_reason = rejection_reason
 
         accident_claim.save()
 
-    # Redirect back to the user's claims history view
     return redirect('admin_claims_history')
+
+logger = logging.getLogger(__name__)
+
+def register_surveyor(request):
+    if request.method == 'POST':
+
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        if User.objects.filter(email=email).exists():
+            messages.error(request, 'Email already exists. Please use a different email address.')
+        else:
+            user = User.objects.create(username=username, email=email)
+            user.set_password(password)
+            user.is_active = True
+            user.role = CustomUser.SURVEYOR
+            user.save()
+
+            logger.info(f"User {username} created successfully.")
+
+            surveyor = Surveyor(user=user, name=username)
+            surveyor.save()
+
+            user_profile = UserProfile(user=user)
+            user_profile.save()
+
+            messages.success(request, 'New surveyor created successfully.')
+            return redirect('admin_add_surveyor')
+
+    return render(request, 'insurance/admin_add_surveyor.html')
+
+
+def survayor_dashboard(request):
+    user = request.user
+    userProfile = UserProfile.objects.filter(user=user)
+    context = {
+        'userProfile' : userProfile,
+    } 
+
+    return render(request,'insurance/survayordashboard.html', context)
+
+def survayor_base_dashboard(request):
+    return render(request,'insurance/survayorbase.html')
+
+def update_survayor_view(request, pk):
+    # Assuming pk is the primary key of the surveyor you want to update
+    user = request.user
+    user_profile = UserProfile.objects.get(user=user)
+
+    if not user.is_authenticated:
+        # Redirect to login or handle the case where the user is not authenticated
+        return redirect('login')
+
+    # Assuming you want to get the surveyor based on the given primary key
+    surveyor = get_object_or_404(CustomUser, pk=pk)
+
+    # Assuming you have a UserProfile associated with the surveyor
+    profile = get_object_or_404(UserProfile, user=user)
+
+    if request.method == 'POST':
+        user.first_name = request.POST.get('first_name')
+        user.last_name = request.POST.get('last_name')
+        user.save()
+
+        # Update user profile fields
+        if 'profile_pic' in request.FILES:
+            user_profile.profile_pic = request.FILES['profile_pic']
+            user_profile.address = request.POST.get('address')
+            user_profile.phone_no = request.POST.get('phone_no')
+            user_profile.state = request.POST.get('state')
+            user_profile.country = request.POST.get('country')
+
+            user_profile.save()
+
+        messages.success(request, 'Surveyor updated successfully!')
+        return redirect('update_survayor', pk=pk)  # Redirect to the appropriate page
+    context = {
+        'user': user,
+        'user_profile': user_profile
+    }
+    return render(request, 'insurance/update_survayor.html', context)
+
+def admin_view_survayor_view(request):
+    surveyors = CustomUser.objects.filter(role=CustomUser.SURVEYOR, is_active=True)
+    return render(request, 'insurance/admin_view_survayor.html', {'surveyors': surveyors})
+
+def assign_claim_view(request):
+    if request.method == 'POST':
+        selected_claim_ids = request.POST.getlist('claims[]')
+        surveyor_id = request.POST.get('surveyor')
+
+        if not surveyor_id:
+            messages.error(request, 'Please select a surveyor.')
+            return redirect('admin_assign_claim')
+
+        selected_claims = AccidentClaim.objects.filter(id__in=selected_claim_ids, is_assigned=False)
+
+        for claim in selected_claims:
+            claim.is_assigned = True
+            claim.assigned_surveyor_id = surveyor_id  # Assign the surveyor
+            claim.status = 'Approved'  # Update status as needed
+            claim.save()
+
+        messages.success(request, 'Claims assigned successfully.')
+        return redirect('admin_assign_claim')
+
+    approved_claims = AccidentClaim.objects.filter(status='Approved', is_assigned=False)
+
+    available_surveyors = Surveyor.objects.filter(is_available=True)
+    available_advisors = Advisor.objects.filter(is_available=True)
+
+    context = {
+        'approved_claims': approved_claims,
+        'available_surveyors': available_surveyors,
+        'available_advisors': available_advisors,
+    }
+
+    return render(request, 'insurance/admin_assign_claim.html', context)
+
+
+def surveyor_assigned_claims(request):
+    logged_in_surveyor = Surveyor.objects.get(user=request.user)
+
+    assigned_claims = AccidentClaim.objects.filter(assigned_surveyor=logged_in_surveyor, is_assigned=True)
+
+    context = {
+        'assigned_claims': assigned_claims,
+    }
+
+    return render(request, 'insurance/surveyor_assigned_claims.html', context)

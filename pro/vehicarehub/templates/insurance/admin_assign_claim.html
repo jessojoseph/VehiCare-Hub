@@ -1,0 +1,88 @@
+<!-- insurance/admin_view_approved_claims.html -->
+
+{% extends 'insurance/adminbase.html' %}
+{% block content %}
+    <head>
+        <style media="screen">
+            /* Add any additional styles needed for this specific page */
+            .approved-claims-container {
+                margin: 20px;
+                background-color: #f5f5f5;
+                padding: 20px;
+                border-radius: 10px;
+            }
+
+            .claim-item {
+                border: 2px solid #3498db;
+                border-radius: 10px;
+                margin-bottom: 20px;
+                padding: 15px;
+                background-color: #ecf0f1;
+            }
+
+            .checkbox-label {
+                margin-right: 10px;
+                color: #3498db;
+            }
+
+            .select-surveyor {
+                width: 100%;
+                padding: 10px;
+                margin-top: 10px;
+                margin-bottom: 20px;
+                border: 2px solid #3498db;
+                border-radius: 4px;
+                box-sizing: border-box;
+                color: #2c3e50;
+            }
+
+            .assign-button {
+                background-color: #3498db;
+                color: white;
+                padding: 10px 15px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background-color 0.3s;
+            }
+
+            .assign-button:hover {
+                background-color: #2980b9;
+            }
+
+            h2 {
+                text-align: center;
+                color: #3498db;
+            }
+        </style>
+    </head>
+
+    <div class="approved-claims-container">
+        <h2>APPROVED CLAIMS</h2>
+        
+        <form method="POST" action="{% url 'admin_assign_claim'%}">
+            {% csrf_token %}
+
+            {% for claim in approved_claims %}
+                <div class="claim-item">
+                    <input type="checkbox" name="claims[]" value="{{ claim.id }}" class="checkbox-label">
+                    <label>User: {{ claim.user.username }}</label><br>
+                    <p>Incident Type: {{ claim.incident_type }}</p>
+                    <p>Incident Date: {{ claim.incident_date }}</p>
+                    <p>Description: {{ claim.description }}</p>
+                    <!-- Add other claim details as needed -->
+                </div>
+            {% endfor %}
+
+            <!-- Select Surveyor for all selected claims -->
+            <label for="surveyor">Select Surveyor</label>
+            <select name="surveyor" class="select-surveyor" required>
+                {% for surveyor in available_surveyors %}
+                    <option value="{{ surveyor.id }}">{{ surveyor.user.username }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="assign-button">Assign to Surveyor</button>
+        </form>
+    </div>
+{% endblock content %}

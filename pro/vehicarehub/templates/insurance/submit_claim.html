@@ -1,3 +1,5 @@
+
+
 {% extends 'insurance/customerbase.html' %}
 {% block content %}
 {% load static %}
@@ -55,6 +57,23 @@
             background-color: #0056b3;
         }
     </style>
+
+    <script>
+        function validateFileUpload() {
+            var firFile = document.getElementById('fir_document').value;
+            var dlFile = document.getElementById('dl_document').value;
+            var rcFile = document.getElementById('rc_document').value;
+
+            var allowedExtensions = /(\.pdf|\.png|\.jpg|\.jpeg)$/i;
+
+            if (!allowedExtensions.exec(firFile) || !allowedExtensions.exec(dlFile) || !allowedExtensions.exec(rcFile)) {
+                alert('Please upload only PDF, PNG, JPG, or JPEG files.');
+                return false;
+            }
+
+            return true;
+        }
+    </script>
 </head>
 
 <div class="container">
@@ -63,7 +82,7 @@
             <h2 class="text-center">Submit Accident Claim</h2>
         </div>
         <div class="card-body">
-            <form method="POST" enctype="multipart/form-data">
+            <form method="POST" enctype="multipart/form-data" onsubmit="return validateFileUpload();">
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="incident_type">Incident Type:</label>
@@ -74,7 +93,6 @@
                     <label for="incident_date">Incident Date:</label>
                     <input type="date" name="incident_date" class="form-control" pattern="\d{4}-\d{2}-\d{2}">
                 </div>
-                
 
                 <div class="form-group">
                     <label for="description">Description:</label>
@@ -82,18 +100,18 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="documents">Documents (FIR):</label>
-                    <input type="file" name="documents" class="form-control">
+                    <label for="fir_document">Documents (FIR):</label>
+                    <input type="file" name="fir_document" id="fir_document" class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label for="documents">Driving Licence (DL):</label>
-                    <input type="file" name="documents" class="form-control">
+                    <label for="dl_document">Driving Licence (DL):</label>
+                    <input type="file" name="dl_document" id="dl_document" class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label for="documents">Registration Certificate (RC):</label>
-                    <input type="file" name="documents" class="form-control">
+                    <label for="rc_document">Registration Certificate (RC):</label>
+                    <input type="file" name="rc_document" id="rc_document" class="form-control">
                 </div>
 
                 <button type="submit" class="btn btn-primary">Submit Claim</button>
