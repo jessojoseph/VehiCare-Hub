@@ -1,0 +1,92 @@
+<!-- breakdown_requests.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Breakdown Requests{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mt-5 mb-4">Breakdown Requests</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Vehicle Registration Number</th>
+                <th scope="col">Description of Issue</th>
+                <th scope="col">Location</th>
+                <th scope="col">Worker</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in breakdown_requests %}
+            {% if not request.assigned_worker %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ request.name }}</td>
+                <td>{{ request.reg_number }}</td>
+                <td>{{ request.complaint }}</td>
+                <td>
+                    <button type="button" class="btn btn-primary" onclick="viewLocation('{{ request.latitude }}', '{{ request.longitude }}')">View</button>
+                </td>
+                <td>
+                    <form method="post" action="{% url 'assign-breakdown' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="request_id" value="{{ request.id }}">
+                        <select name="worker_id">
+                            <option value="">Select Worker</option>
+                            {% for worker in workers %}
+                                <option value="{{ worker.id }}">{{ worker.user.username }}</option>
+                            {% endfor %}
+                        </select>
+                </td>
+                <td>
+                        <button type="submit" class="btn btn-success">Assign</button>
+                    </form>
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+    <div id="mapWrapper" style="display: none;">
+        <div class="container-fluid col-12 d-flex justify-content-center bg-dark" id="mapContainer" style="width: 90%; height: 500px;">
+            <div class="map" id="myMap" style="width: 100%; height: 100%"></div>
+        </div>
+    </div>
+</div>
+<!-- Include Bing Maps API script -->
+<script type="text/javascript" src="https://www.bing.com/api/maps/mapcontrol?key=Agyr0UQGWTFzP3Fwb3PDJ_ahP24jx9jRgpUWwBD_37B8MXu1oql6WCs6J-vgU1YT"></script>
+
+<script>
+    var map;
+
+    function initMap() {
+        map = new Microsoft.Maps.Map("#myMap", {
+            credentials: "Agyr0UQGWTFzP3Fwb3PDJ_ahP24jx9jRgpUWwBD_37B8MXu1oql6WCs6J-vgU1YT",
+            zoom: 10,
+        });
+    }
+
+    function viewLocation(latitude, longitude) {
+        // Toggle visibility of map wrapper
+        var mapWrapper = document.getElementById("mapWrapper");
+        mapWrapper.style.display = "block";
+
+        // Call the initMap function if map is not initialized
+        if (!map) {
+            initMap();
+        }
+
+        // Center the map to the selected location
+        var center = new Microsoft.Maps.Location(latitude, longitude);
+        map.setView({ center: center });
+
+        // Add marker to the selected location
+        var marker = new Microsoft.Maps.Pushpin(center);
+        map.entities.clear();
+        map.entities.push(marker);
+    }
+</script>
+{% endblock %}

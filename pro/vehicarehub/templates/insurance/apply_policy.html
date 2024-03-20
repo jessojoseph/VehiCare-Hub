@@ -49,10 +49,10 @@
         <th>#</th>
           <th>Policy Name</th>
           <th> Category</th>
-          <th> Sum Assurance</th>
+          {% comment %} <th> Sum Assurance</th>
           <th> Premium</th>
           <th> Tenure</th>
-          <th> Creation Date</th>
+          <th> Creation Date</th> {% endcomment %}
           <th> Action</th>
           
         </tr>
@@ -62,10 +62,10 @@
         <td> {{ forloop.counter }}</td>
         <td> {{t.policy_name}}</td>
         <td> {{t.category}}</td>
-        <td> {{t.sum_assurance}}</td>
+        {% comment %} <td> {{t.sum_assurance}}</td>
         <td> {{t.premium}}</td>
         <td> {{t.tenure}} </td>
-        <td>{{t.creation_date}}</td>
+        <td>{{t.creation_date}}</td> {% endcomment %}
         <td><a class="btn btn-success btn-xs" href="{% url 'apply_insurance' t.id  %}">Apply</a></td>
       </tr>
       {% endfor %}

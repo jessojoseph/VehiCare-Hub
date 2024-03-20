@@ -266,17 +266,33 @@ class Policy(models.Model):
         return self.policy_name
 
 class PolicyRecord(models.Model):
-    customer= models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    Policy= models.ForeignKey(Policy, on_delete=models.CASCADE)
-    status = models.CharField(max_length=100,default='Pending')
-    creation_date =models.DateField(auto_now=True)
+    customer = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    Policy = models.ForeignKey(Policy, on_delete=models.CASCADE)
+    status = models.CharField(max_length=100, default='Pending')
+    creation_date = models.DateField(auto_now=True)
 
-    vehicle_number = models.CharField(max_length=100,default='****')
+    vehicle_number = models.CharField(max_length=100, default='****')
     purchase_year = models.IntegerField(default=20)
-    full_name = models.CharField(max_length=255,default='****')
+    full_name = models.CharField(max_length=255, default='****')
     mob_number = models.CharField(max_length=15, default='****')
-    rc_number = models.CharField(max_length=100,default='****')
+    rc_number = models.CharField(max_length=100, default='****')
     chassis_number = models.CharField(max_length=100, default='****')
+
+    # Fields for premium calculation
+    bike_model = models.CharField(max_length=255, default='****')
+    bike_make = models.CharField(max_length=255, default='****')
+    engine_capacity = models.IntegerField(default=100)
+    owner_age = models.IntegerField(default=30)
+    owner_gender = models.CharField(max_length=10, default='Male')
+    riding_experience = models.IntegerField(default=5)
+    voluntary_deductible = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    has_previous_claim = models.BooleanField(default=False)
+    add_ons = models.CharField(max_length=255, default='', blank=True)
+
+    # Premium and IDV fields
+    premium = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    idv = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+
     def __str__(self):
         return f"{self.Policy.policy_name} - {self.customer.username}"
     
@@ -319,8 +335,24 @@ class AccidentClaim(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
     rejection_reason = models.TextField(blank=True, null=True)
 
+    policy_record = models.ForeignKey(PolicyRecord, on_delete=models.SET_NULL, null=True, blank=True)
+
 
     def __str__(self):
         return f"{self.user.username}'s Accident Claim - {self.incident_type} ({self.status})"
 
 
+class RoadsideAssistanceRequest(models.Model):
+    name = models.CharField(max_length=100)
+    reg_number = models.CharField(max_length=50)
+    complaint = models.TextField()
+    latitude = models.DecimalField(max_digits=20, decimal_places=15, default=0.0, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=20, decimal_places=15, default=0.0, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    assigned_worker = models.ForeignKey(Worker, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.name}'s Roadside Assistance Request"
+
+
+        

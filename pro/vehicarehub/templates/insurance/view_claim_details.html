@@ -1,0 +1,110 @@
+{% extends 'insurance/survayorbase.html' %}
+{% block content %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Claim Details</title>
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+  <!-- Font Awesome CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+  <style media="screen">
+    a:link {
+      text-decoration: none;
+    }
+
+    h6 {
+      text-align: center;
+    }
+
+    .container {
+      margin-top: 50px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h4 class="text-center">Claim Details</h4>
+      </div>
+      <table class="table table-hover table-bordered table-striped" id="claim-details-table">
+        <thead class="thead-dark">
+          <tr>
+            <th>Field</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>User</td>
+            <td>{{ claim.user.username }}</td>
+          </tr>
+          <tr>
+            <td>Vehicle Number</td>
+            <td>{{ policyrecord.vehicle_number }}</td>
+          </tr>
+          <tr>
+            <td>Incident Type</td>
+            <td>{{ claim.incident_type }}</td>
+          </tr>
+          <tr>
+            <td>Incident Date</td>
+            <td>{{ claim.incident_date }}</td>
+          </tr>
+          <tr>
+            <td>FIR</td>
+            <td>
+              {% if claim.fir_document %}
+                <a href="{{ claim.fir_document.url }}" target="_blank" class="btn btn-primary btn-sm">View Document</a>
+              {% else %}
+                Not Submitted
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td>DL</td>
+            <td>
+              {% if claim.dl_document %}
+                <a href="{{ claim.dl_document.url }}" target="_blank" class="btn btn-primary btn-sm">View Document</a>
+              {% else %}
+                Not Submitted
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td>RC</td>
+            <td>
+              {% if claim.rc_document %}
+                <a href="{{ claim.rc_document.url }}" target="_blank" class="btn btn-primary btn-sm">View Document</a>
+              {% else %}
+                Not Submitted
+              {% endif %}
+            </td>
+          </tr>
+          <!-- Add more fields as needed -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS and jQuery -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>
+
+{% endblock content %}

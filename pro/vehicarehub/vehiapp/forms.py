@@ -81,5 +81,24 @@ class InsuranceApplicationForm(forms.Form):
     mob_number = forms.CharField(label='Mobile Number', max_length=15)
     rc_number = forms.CharField(label='RC Number', max_length=100)
     chassis_number = forms.CharField(label='Chassis Number', max_length=100)
+    bike_model = forms.CharField(label='Bike Model', max_length=255)
+    bike_make = forms.CharField(label='Bike Make', max_length=255)
+    engine_capacity = forms.IntegerField(label='Engine Capacity (cc)')
+    owner_age = forms.IntegerField(label='Owner Age')
+    owner_gender = forms.ChoiceField(label='Owner Gender', choices=[('M', 'Male'), ('F', 'Female'), ('O', 'Other')])
+    riding_experience = forms.IntegerField(label='Riding Experience (in years)')
+    voluntary_deductible = forms.DecimalField(label='Voluntary Deductible', decimal_places=2, initial=0.00)
+    has_previous_claim = forms.BooleanField(label='Has Previous Claim', required=False)
+    add_ons = forms.MultipleChoiceField(
+            label='Select Add-ons',
+            choices=[
+                ('medical_cover', 'Medical Cover'),
+                ('passenger_cover', 'Passenger Cover'),
+                ('accessories_cover', 'Accessories Cover'),
+            ],
+            widget=forms.CheckboxSelectMultiple(),
+            required=False
+        )
+
 
 

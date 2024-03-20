@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.contrib.auth import get_user_model
-from .models import Service, UserProfile,Worker,Slot,CustomUser,Appointment, Advisor, Category, PolicyRecord, Policy, Question, AccidentClaim, Surveyor
+from .models import Service, UserProfile,Worker,Slot,CustomUser,Appointment, Advisor, Category, PolicyRecord, Policy, Question, AccidentClaim, Surveyor, RoadsideAssistanceRequest
 from .forms import AppointmentForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -1518,6 +1518,8 @@ def question_history_view(request):
     questions = Question.objects.all().filter(customer=customer)
     return render(request,'insurance/question_history.html',{'questions':questions,'customer':customer})
 
+from decimal import Decimal
+
 def apply_insurance_view(request, pk):
     policy = get_object_or_404(Policy, id=pk)
 
@@ -1526,7 +1528,7 @@ def apply_insurance_view(request, pk):
         if form.is_valid():
             # Process the form data and save the insurance application record
             application_record = PolicyRecord()
-            application_record.Policy = policy 
+            application_record.Policy = policy
             application_record.customer = request.user
             application_record.vehicle_number = form.cleaned_data['vehicle_number']
             application_record.purchase_year = form.cleaned_data['purchase_year']
@@ -1534,7 +1536,28 @@ def apply_insurance_view(request, pk):
             application_record.mob_number = form.cleaned_data['mob_number']
             application_record.rc_number = form.cleaned_data['rc_number']
             application_record.chassis_number = form.cleaned_data['chassis_number']
+
+            # Additional fields for premium calculation
+            application_record.bike_model = form.cleaned_data['bike_model']
+            application_record.bike_make = form.cleaned_data['bike_make']
+            application_record.engine_capacity = form.cleaned_data['engine_capacity']
+            application_record.owner_age = form.cleaned_data['owner_age']
+            application_record.owner_gender = form.cleaned_data['owner_gender']
+            application_record.riding_experience = form.cleaned_data['riding_experience']
+            application_record.voluntary_deductible = form.cleaned_data['voluntary_deductible']
+            application_record.has_previous_claim = form.cleaned_data['has_previous_claim']
+            application_record.add_ons = form.cleaned_data['add_ons']
+
+            # Calculate premium based on factors (example calculation)
+            base_premium = Decimal('2000')  # Adjust this based on your requirements
+            age_factor = Decimal('1.0') if application_record.owner_age < 25 else Decimal('0.9')
+            experience_factor = Decimal('1.0') if application_record.riding_experience > 3 else Decimal('1.2')
+            premium = base_premium * age_factor * experience_factor
+
+            # Update the premium field in the model
+            application_record.premium = premium
             application_record.save()
+
             return redirect('history') 
     else:
         form = InsuranceApplicationForm()
@@ -1570,7 +1593,7 @@ def submit_claim_view(request):
 
 
 def history_claim_view(request):
-    accident_claims = AccidentClaim.objects.all()
+    accident_claims = AccidentClaim.objects.filter(user=request.user)
 
     context = {
         'accident_claims': accident_claims,
@@ -1614,7 +1637,7 @@ def reject_claim(request, claim_id):
 
         accident_claim.save()
 
-    return redirect('admin_claims_history')
+    return redirect('admin_history_claim')
 
 logger = logging.getLogger(__name__)
 
@@ -1746,3 +1769,68 @@ def surveyor_assigned_claims(request):
     }
 
     return render(request, 'insurance/surveyor_assigned_claims.html', context)
+
+
+def view_claim_details(request, claim_id):
+    claim = get_object_or_404(AccidentClaim, id=claim_id)
+    policy_record = PolicyRecord.objects.filter(customer=claim.user).first()
+    context = {'claim': claim, 'policyrecord': policy_record}
+    return render(request, 'insurance/view_claim_details.html', context)
+
+def request_assistance(request):
+    if request.method == 'POST':
+        # Retrieve data from the POST request
+        name = request.POST.get('name')
+        reg_number = request.POST.get('reg_number')
+        complaint = request.POST.get('complaint')
+        latitude = request.POST.get('latitude')
+        longitude = request.POST.get('longitude')
+        
+        # Create a new RoadsideAssistanceRequest object
+        request = RoadsideAssistanceRequest.objects.create(
+            name=name,
+            reg_number=reg_number,
+            complaint=complaint,
+            latitude=latitude,
+            longitude=longitude
+        )
+        # Redirect to a success page
+        return redirect('assistance')
+    
+    # Get the name of the currently logged-in user
+    logged_in_user_name = request.user.username
+    
+    # Pass the logged-in user's name to the template
+    context = {
+        'logged_in_user_name': logged_in_user_name
+    }
+    
+    return render(request, 'assistance.html', context)
+
+def breakdown_requests(request):
+    breakdown_requests = RoadsideAssistanceRequest.objects.all()
+    workers = Worker.objects.filter(is_available=True)  # Retrieve available workers
+    context = {
+        'breakdown_requests': breakdown_requests,
+        'workers': workers,
+    }
+    return render(request, 'assistance_requests.html', context)
+
+def assign_breakdown(request):
+    if request.method == 'POST':
+        request_id = request.POST.get('request_id')
+        worker_id = request.POST.get('worker_id')
+
+        # Retrieve the assistance request and the selected worker
+        assistance_request = RoadsideAssistanceRequest.objects.get(id=request_id)
+        worker = Worker.objects.get(id=worker_id)
+
+        # Assign the assistance request to the worker
+        assistance_request.assigned_worker = worker
+        assistance_request.save()
+
+        # Update the worker's availability status
+        worker.is_available = False
+        worker.save()
+
+        return redirect('assistance_requests') 

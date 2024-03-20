@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CustomUser,Service,UserProfile,Appointment,Slot,Worker,Task,AudioRecording,LeaveRequest,Payment,ServicePrediction, ServiceTimePrediction, Advisor,Category,Policy,PolicyRecord, AccidentClaim, Surveyor
+from .models import CustomUser,Service,UserProfile,Appointment,Slot,Worker,Task,AudioRecording,LeaveRequest,Payment,ServicePrediction, ServiceTimePrediction, Advisor,Category,Policy,PolicyRecord, AccidentClaim, Surveyor, RoadsideAssistanceRequest
 
 
 admin.site.register(CustomUser)
@@ -23,4 +23,6 @@ admin.site.register(Policy)
 admin.site.register(PolicyRecord)
 admin.site.register(AccidentClaim)
 admin.site.register(Surveyor)
+admin.site.register(RoadsideAssistanceRequest)
+
 

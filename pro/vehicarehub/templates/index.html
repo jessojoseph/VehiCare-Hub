@@ -80,6 +80,8 @@
 
           {% if user.is_staff %}
           <a href="{% url 'viewappointments' %}" class="nav-item nav-link">View Appointments</a>
+          <a href="{% url 'assistance_requests' %}" class="nav-item nav-link">View Requests</a>
+
           {% comment %} <a href="{% url 'add-service' %}" class="nav-item nav-link">Add Services</a> {% endcomment %}
           {% comment %} <a href="{% url 'addworker' %}" class="nav-item nav-link">Add Worker</a>
           <a href="{% url 'addworker' %}" class="nav-item nav-link">Add Advisor</a>
@@ -136,7 +138,7 @@
               <a href="{% url 'book_appointment' %}" class="dropdown-item">Book Appointment</a>
               <a href="{% url 'viewappointments' %}" class="dropdown-item">View Appointment</a>
               <a href="{% url 'view_updates' %}" class="dropdown-item">Track Services</a>
-              <a href="team.html" class="dropdown-item">Our Team</a>
+              <a href="{% url 'assistance' %}" class="dropdown-item">Request Assistance</a>
               <a href="testimonial.html" class="dropdown-item">Testimonial</a>
               <a href="404.html" class="dropdown-item">404 Page</a>
             </div>

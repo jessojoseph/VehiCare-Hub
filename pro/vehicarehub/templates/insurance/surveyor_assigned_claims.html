@@ -76,7 +76,7 @@
             {% for claim in assigned_claims %}
                 <li>
                     <span class="claim-type">Claim Type: {{ claim.incident_type }}</span><br>
-                    <a href="#" class="view-btn">View</a><br>
+                    <a href="{% url 'view_claim_details' claim.id %}" class="view-btn">View</a><br>
                     <span class="incident-info">
                         Incident Date: {{ claim.incident_date }}<br>
                         Description: {{ claim.description }}<br>
