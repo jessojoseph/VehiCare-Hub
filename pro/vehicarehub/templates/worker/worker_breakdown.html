@@ -1,0 +1,93 @@
+{% extends 'basew.html' %}
+
+{% block title %}Worker Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Assigned Breakdown Requests</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Vehicle Registration Number</th>
+                <th scope="col">Contact</th>
+                <th scope="col">Description of Issue</th>
+                <th scope="col">Location</th>
+                <th scope="col">Action</th> <!-- New column for action button -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in assigned_requests %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ request.name }}</td>
+                <td>{{ request.reg_number }}</td>
+                <td>{{ request.phone_number }}</td>
+                <td>{{ request.complaint }}</td>
+                <td>
+                    <button type="button" class="btn btn-primary" onclick="viewLocation('{{ request.latitude }}', '{{ request.longitude }}')">View</button>
+                </td>
+                <td>
+                    {% if not request.verified %}
+                    <!-- Send OTP form -->
+                    <form id="sendOTPForm{{ forloop.counter }}" class="d-inline-block" method="post" action="{% url 'send_otp_to_customer' request_id=request.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">Send OTP</button>
+                    </form>
+                    <!-- OTP verification field -->
+                    <form id="otpForm{{ forloop.counter }}" class="d-inline-block" method="post" action="{% url 'verify_order_otp' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="request_id" value="{{ request.id }}">
+                        <div class="form-group mb-0 ml-2">
+                            <label for="otp{{ forloop.counter }}">Enter OTP:</label>
+                            <input type="text" class="form-control" id="otp{{ forloop.counter }}" name="otp" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Verify OTP</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div id="mapWrapper" style="display: none;">
+        <div class="container-fluid col-12 d-flex justify-content-center bg-dark" id="mapContainer" style="width: 90%; height: 500px;">
+            <div class="map" id="myMap" style="width: 100%; height: 100%"></div>
+        </div>
+    </div>
+</div>
+<!-- Include Bing Maps API script -->
+<script type="text/javascript" src="https://www.bing.com/api/maps/mapcontrol?key=Agyr0UQGWTFzP3Fwb3PDJ_ahP24jx9jRgpUWwBD_37B8MXu1oql6WCs6J-vgU1YT"></script>
+
+<script>
+    var map;
+
+    function initMap() {
+        map = new Microsoft.Maps.Map("#myMap", {
+            credentials: "Agyr0UQGWTFzP3Fwb3PDJ_ahP24jx9jRgpUWwBD_37B8MXu1oql6WCs6J-vgU1YT",
+            zoom: 10,
+        });
+    }
+
+    function viewLocation(latitude, longitude) {
+        // Toggle visibility of map wrapper
+        var mapWrapper = document.getElementById("mapWrapper");
+        mapWrapper.style.display = "block";
+
+        // Call the initMap function if map is not initialized
+        if (!map) {
+            initMap();
+        }
+
+        // Center the map to the selected location
+        var center = new Microsoft.Maps.Location(latitude, longitude);
+        map.setView({ center: center });
+
+        // Add marker to the selected location
+        var marker = new Microsoft.Maps.Pushpin(center);
+        map.entities.clear();
+        map.entities.push(marker);
+    }
+</script>
+{% endblock %}

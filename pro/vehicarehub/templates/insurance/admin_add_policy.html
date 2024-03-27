@@ -21,7 +21,7 @@
     {%csrf_token%}
     <div class="form-group">
       <label for="course_name">Category</label>
-      {% render_field policyForm.category class="form-control" placeholder="Life Insurance" %}
+      {% render_field policyForm.category class="form-control" %}
 
         <label for="course_name">Policy Name</label>
       {% render_field policyForm.policy_name class="form-control" placeholder="Type Here" %}

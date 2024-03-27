@@ -56,7 +56,7 @@
   <form method="post" autocomplete="off" enctype="multipart/form-data" style="margin-left:200px;margin-right:200px;">
       {% csrf_token %}
         <label for="first_name">Category Name</label>
-        {% render_field categoryForm.category_name class="form-control" %}
+        {% render_field categoryForm.category_name class="form-control" id="id_category_name" %}
         
 <br><br>
     <input type="submit" value="Update">

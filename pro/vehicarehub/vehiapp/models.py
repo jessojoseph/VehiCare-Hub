@@ -341,15 +341,24 @@ class AccidentClaim(models.Model):
     def __str__(self):
         return f"{self.user.username}'s Accident Claim - {self.incident_type} ({self.status})"
 
-
 class RoadsideAssistanceRequest(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Completed', 'Completed'),
+    ]
+    
     name = models.CharField(max_length=100)
     reg_number = models.CharField(max_length=50)
     complaint = models.TextField()
+    phone_number = models.CharField(max_length=20, null=True, blank=True)
     latitude = models.DecimalField(max_digits=20, decimal_places=15, default=0.0, null=True, blank=True)
     longitude = models.DecimalField(max_digits=20, decimal_places=15, default=0.0, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     assigned_worker = models.ForeignKey(Worker, on_delete=models.SET_NULL, null=True, blank=True)
+    otp = models.CharField(max_length=100, default='Null')
+    verified = models.BooleanField(default=False)
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
 
     def __str__(self):
         return f"{self.name}'s Roadside Assistance Request"

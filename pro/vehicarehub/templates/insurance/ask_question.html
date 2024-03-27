@@ -33,7 +33,7 @@
     {%csrf_token%}
     <div class="form-group">
       <label for="course_name">Problem</label>
-      {% render_field questionForm.description class="form-control" placeholder="Describe your problem here" %}
+      {% render_field questionForm.description id="id_description" class="form-control" placeholder="Describe your problem here" %}
 
 
     </div>

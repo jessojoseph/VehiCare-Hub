@@ -131,6 +131,11 @@ urlpatterns = [
     path('breakdown-requests/', views.breakdown_requests, name='assistance_requests'),
 
     path('assign-breakdown/', views.assign_breakdown, name='assign-breakdown'),
+    path('worker_breakdown/', views.worker_breakdown, name='worker_breakdown'),
+
+    path('send-otp-to-customer/<int:request_id>/', views.send_otp_to_customer, name='send_otp_to_customer'),
+    path('verify-order-otp/', views.verify_order_otp, name='verify_order_otp'),
+
 
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

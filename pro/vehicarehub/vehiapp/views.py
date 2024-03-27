@@ -922,11 +922,13 @@ def update_work_status(request, task_id):
         materials_used = request.POST.get('materials_used')
         additional_notes = request.POST.get('additional_notes')
         audio_data = request.FILES.get('audio_data')
+        recognized_text = request.POST.get('recognized_text')  # Extract recognized text
 
         task.status = new_status
         task.work_done = work_done
         task.materials_used = materials_used
         task.additional_notes = additional_notes
+        task.recognized_text = recognized_text  # Save recognized text to the recognized_text field
 
         # Check if audio_data is provided and save it to the database
         if audio_data:
@@ -951,9 +953,10 @@ def update_work_status(request, task_id):
             appointment.appointment_status = 'Completed'    
             appointment.save()
 
-        return JsonResponse({'message': 'Work status updated successfully'})
+        # return JsonResponse({'message': 'Work status updated successfully'})
 
     return render(request, 'worker/update_work_status.html', {'task': task})
+
 
 def process_audio(task, audio_data):
     # Implement logic to process the audio if needed
@@ -976,6 +979,7 @@ def view_updates(request):
     }
     
     return render(request, 'view_updates.html', context)
+
 @login_required
 def admin_view_updates(request):
     if request.user.is_superuser:
@@ -1783,6 +1787,7 @@ def request_assistance(request):
         name = request.POST.get('name')
         reg_number = request.POST.get('reg_number')
         complaint = request.POST.get('complaint')
+        phone_number = request.POST.get('phone_number')  # New field for phone number
         latitude = request.POST.get('latitude')
         longitude = request.POST.get('longitude')
         
@@ -1791,6 +1796,7 @@ def request_assistance(request):
             name=name,
             reg_number=reg_number,
             complaint=complaint,
+            phone_number=phone_number,  # New field for phone number
             latitude=latitude,
             longitude=longitude
         )
@@ -1806,6 +1812,7 @@ def request_assistance(request):
     }
     
     return render(request, 'assistance.html', context)
+
 
 def breakdown_requests(request):
     breakdown_requests = RoadsideAssistanceRequest.objects.all()
@@ -1834,3 +1841,89 @@ def assign_breakdown(request):
         worker.save()
 
         return redirect('assistance_requests') 
+
+    
+def worker_breakdown(request):
+    # Check if the current user is associated with a Worker
+    try:
+        # Retrieve the associated Worker for the current user
+        worker = Worker.objects.get(user=request.user)
+        
+        # Retrieve assigned assistance requests for the associated worker
+        assigned_requests = RoadsideAssistanceRequest.objects.filter(assigned_worker=worker)
+        
+        context = {
+            'assigned_requests': assigned_requests,
+        }
+        return render(request, 'worker/worker_breakdown.html', context)
+    except Worker.DoesNotExist:
+        # Handle the case where the current user is not associated with a Worker
+        # You can render an appropriate template or return an empty context
+        return render(request, 'worker/worker_breakdown.html', {})
+    
+
+import random
+from twilio.rest import Client
+
+def send_otp_to_customer(request, request_id):
+    # Retrieve the roadside assistance request object
+    roadside_request = get_object_or_404(RoadsideAssistanceRequest, id=request_id)
+    
+    # Generate OTP
+    otp = ''.join(random.choices('0123456789', k=6))
+    roadside_request.otp = otp
+    roadside_request.save()
+    
+    # Send OTP via SMS
+    send_otp_via_sms(roadside_request.phone_number, otp)
+    
+    return redirect('worker_breakdown')
+
+def send_otp_via_sms(mobile_number, otp):
+    # Your Twilio credentials
+    account_sid = 'AC17eaba11961da3bd30897bbd2754bbb5'
+    auth_token = '62fb07a624e10c593893596cef97959e'
+    twilio_number = '+447700104445'
+    
+    # Initialize Twilio client
+    client = Client(account_sid, auth_token)
+    
+    # Compose the message
+    message_body = f"Your OTP for verification is: {otp}"
+    
+    # Send the SMS
+    client.messages.create(from_=twilio_number, body=message_body, to=mobile_number)
+
+
+def verify_order_otp(request):
+    if request.method == 'POST':
+        request_id = request.POST.get('request_id')
+        otp_entered = request.POST.get('otp')
+        
+        # Retrieve the roadside assistance request object
+        roadside_request = get_object_or_404(RoadsideAssistanceRequest, id=request_id)
+        
+        # Check if the entered OTP matches the OTP stored in the request and it's not null
+        if roadside_request.otp == otp_entered and roadside_request.otp is not None:
+            # Update the roadside assistance request to mark it as verified
+            roadside_request.verified = True
+            roadside_request.status = 'Completed'  # Adjust the status as needed
+            roadside_request.save()
+
+            # Retrieve the assigned worker and update their status
+            if roadside_request.assigned_worker:
+                worker = roadside_request.assigned_worker
+                worker.is_available = True  # Mark worker as available
+                worker.save()
+            
+            # Redirect to a success page or display a success message
+            messages.success(request, 'Roadside assistance request verified successfully.')
+            return redirect('worker_breakdown')  # Change 'worker_breakdown' to the name of your worker breakdown URL
+        else:
+            # Display an error message if the OTP is incorrect or null
+            messages.error(request, 'Invalid OTP. Please try again.')
+            return redirect('worker_breakdown')
+
+    # Handle the case if the request method is not POST
+    messages.error(request, 'Invalid request method.')
+    return redirect('worker_breakdown')
