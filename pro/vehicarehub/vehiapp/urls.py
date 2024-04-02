@@ -121,6 +121,8 @@ urlpatterns = [
     path('admin_assign_claim/', views.assign_claim_view, name='admin_assign_claim'),
     path('surveyor_assigned_claims/', views.surveyor_assigned_claims, name='surveyor_assigned_claims'),
     path('view_claim_details/<int:claim_id>/', views.view_claim_details, name='view_claim_details'),
+    path('mark_survey_complete/<int:claim_id>/', views.mark_survey_complete, name='mark_survey_complete'),
+
 
 
     path('ask_question', views.ask_question_view,name='ask_question'),

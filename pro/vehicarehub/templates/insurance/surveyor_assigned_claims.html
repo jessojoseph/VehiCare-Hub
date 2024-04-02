@@ -1,91 +1,104 @@
 {% extends 'insurance/survayorbase.html' %}
 
 {% block content %}
-    <head>
-        <!-- Add any additional styles needed for this specific page -->
-        <style media="screen">
-            body {
-                font-family: Arial, sans-serif;
-            }
+<head>
+    <!-- Add any additional styles needed for this specific page -->
+    <style media="screen">
+        body {
+            font-family: Arial, sans-serif;
+        }
 
-            h1 {
-                text-align: center;
-                color: #333;
-            }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
 
-            ul {
-                list-style-type: none;
-                padding: 0;
-            }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
 
-            li {
-                border: 1px solid #ccc;
-                border-radius: 4px;
-                margin-bottom: 20px;
-                padding: 15px;
-                background-color: #f9f9f9;
-            }
+        li {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
 
-            li:hover {
-                background-color: #e0e0e0;
-            }
+        li:hover {
+            background-color: #e0e0e0;
+        }
 
-            .claim-type {
-                font-size: 18px;
-                font-weight: bold;
-                color: #3498db;
-            }
+        .claim-type {
+            font-size: 18px;
+            font-weight: bold;
+            color: #3498db;
+        }
 
-            .incident-info {
-                margin-top: 10px;
-                color: #777;
-            }
+        .incident-info {
+            margin-top: 10px;
+            color: #777;
+        }
 
-            p.no-claims {
-                text-align: center;
-                color: #888;
-                font-style: italic;
-            }
+        .status-pending {
+            color: orange; /* Change color for pending status */
+        }
 
-            .view-btn {
-                float: right;
-                margin-top: -30px;
-                background-color: #4caf50;
-                color: white;
-                border: none;
-                padding: 5px 10px;
-                text-align: center;
-                text-decoration: none;
-                display: inline-block;
-                font-size: 14px;
-                border-radius: 4px;
-                cursor: pointer;
-            }
+        .status-approved {
+            color: green; /* Change color for approved status */
+        }
 
-            .view-btn:hover {
-                background-color: #45a049;
-            }
-        </style>
-    </head>
+        .status-rejected {
+            color: red; /* Change color for rejected status */
+        }
 
-    <h1>Assigned Claims for Surveyor</h1>
+        p.no-claims {
+            text-align: center;
+            color: #888;
+            font-style: italic;
+        }
 
+        .view-btn {
+            float: right;
+            margin-top: -30px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
 
-    {% if assigned_claims %}
-        <ul>
-            {% for claim in assigned_claims %}
-                <li>
-                    <span class="claim-type">Claim Type: {{ claim.incident_type }}</span><br>
-                    <a href="{% url 'view_claim_details' claim.id %}" class="view-btn">View</a><br>
-                    <span class="incident-info">
-                        Incident Date: {{ claim.incident_date }}<br>
-                        Description: {{ claim.description }}<br>
-                        <!-- Add more fields as needed -->
-                    </span>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p class="no-claims">No assigned claims for this surveyor.</p>
-    {% endif %}
+        .view-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<h1>Assigned Claims for Surveyor</h1>
+
+{% if assigned_claims %}
+    <ul>
+        {% for claim in assigned_claims %}
+            <li>
+                <span class="claim-type">Claim Type: {{ claim.incident_type }}</span><br>
+                <a href="{% url 'view_claim_details' claim.id %}" class="view-btn">View</a><br>
+                <span class="incident-info">
+                    Incident Date: {{ claim.incident_date }}<br>
+                    Description: {{ claim.description }}<br>
+                    <!-- Add conditional logic to assign class based on status -->
+                    Status : <span class="{% if claim.survey_status == 'Pending' %}status-pending{% elif claim.survey_status == 'Approved' %}status-approved{% else %}status-rejected{% endif %}">{{ claim.survey_status }}</span><br>
+                    <!-- Add more fields as needed -->
+                </span>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p class="no-claims">No assigned claims for this surveyor.</p>
+{% endif %}
 {% endblock %}

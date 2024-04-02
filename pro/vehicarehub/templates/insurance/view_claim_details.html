@@ -92,6 +92,19 @@
               {% endif %}
             </td>
           </tr>
+          <tr>
+            <td>Survey Status</td>
+            <td>
+              {% if claim.survey_status == 'Pending' %}
+                <form action="{% url 'mark_survey_complete' claim.pk %}" method="post">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-success btn-sm">Mark as Complete</button>
+                </form>
+              {% else %}
+                Completed
+              {% endif %}
+            </td>
+          </tr>
           <!-- Add more fields as needed -->
         </tbody>
       </table>

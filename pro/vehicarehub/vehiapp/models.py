@@ -320,6 +320,11 @@ class AccidentClaim(models.Model):
         ('Rejected', 'Rejected'),
     ]
 
+    SURVEY_STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Completed', 'Completed'),
+    ]
+
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     incident_type = models.CharField(max_length=100)
     incident_date = models.DateField()
@@ -335,11 +340,10 @@ class AccidentClaim(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
     rejection_reason = models.TextField(blank=True, null=True)
 
+    survey_status = models.CharField(max_length=10, choices=SURVEY_STATUS_CHOICES, default='Pending', verbose_name='Survey Status')
+
     policy_record = models.ForeignKey(PolicyRecord, on_delete=models.SET_NULL, null=True, blank=True)
 
-
-    def __str__(self):
-        return f"{self.user.username}'s Accident Claim - {self.incident_type} ({self.status})"
 
 class RoadsideAssistanceRequest(models.Model):
     STATUS_CHOICES = [

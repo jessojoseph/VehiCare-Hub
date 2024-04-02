@@ -1,47 +1,53 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1 class="text-center mb-4">Admin View Updates</h1>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Latest Updates</h1>
 
-    <div class="container">
-        <form method="get" action="{% url 'admin_view_updates' %}">
-            <label for="selected_user">Select User:</label>
-            <select name="selected_user" id="selected_user">
-                <option value="">Select a user</option>
-                {% for user in customers %} {# Iterate over customer users #}
-                    <option value="{{ user.id }}">{{ user.username }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit">View User Updates</button>
-        </form>
-
-        {% if selected_user %}
-            <h2>Updates for {{ selected_user.username }}</h2>
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th>Task Title</th>
-                        <th>Description</th>
-                        <th>Deadline</th>
-                        <th>Work Done</th>
-                        <th>Materials Used</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for task in tasks %}
-                        <tr>
-                            <td>{{ task.title }}</td>
-                            <td>{{ task.description }}</td>
-                            <td>{{ task.deadline }}</td>
-                            <td>{{ task.work_done }}</td>
-                            <td>{{ task.materials_used }}</td>
-                            <td>{{ task.status }}</td>
-                        </tr>
+    <div class="row">
+        <div class="col-md-4">
+            <form method="get" action="{% url 'admin_view_updates' %}" class="mb-3">
+                <label for="selected_user" class="form-label">Select User:</label>
+                <select name="selected_user" id="selected_user" class="form-select">
+                    <option value="" selected disabled>Select a user</option>
+                    {% for user in customers %}
+                        <option value="{{ user.id }}">{{ user.username }}</option>
                     {% endfor %}
-                </tbody>
-            </table>
-        {% endif %}
+                </select>
+                <button type="submit" class="btn btn-primary mt-2">View User Updates</button>
+            </form>
+        </div>
+        <div class="col-md-8">
+            {% if selected_user %}
+                <h2 class="mb-3">Updates for {{ selected_user.username }}</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Task Title</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Deadline</th>
+                                <th scope="col">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in tasks %}
+                                <tr>
+                                    <td>{{ task.title }}</td>
+                                    <td>{{ task.description }}</td>
+                                    <td>{{ task.deadline|date:"M d, Y H:i" }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if task.status == 'pending' %}warning{% elif task.status == 'in_progress' %}info{% else %}success{% endif %}">
+                                            {{ task.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}

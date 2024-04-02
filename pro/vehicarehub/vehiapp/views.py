@@ -1781,6 +1781,20 @@ def view_claim_details(request, claim_id):
     context = {'claim': claim, 'policyrecord': policy_record}
     return render(request, 'insurance/view_claim_details.html', context)
 
+def mark_survey_complete(request, claim_id):
+    # Retrieve the AccidentClaim object based on the claim_id
+    try:
+        claim = AccidentClaim.objects.get(pk=claim_id)
+    except AccidentClaim.DoesNotExist:
+        return HttpResponse("Claim not found.", status=404)
+
+    # Update the survey status to 'Completed'
+    claim.survey_status = 'Completed'
+    claim.save()
+
+    # Redirect to the claim details page
+    return redirect('view_claim_details', claim_id=claim_id)
+
 def request_assistance(request):
     if request.method == 'POST':
         # Retrieve data from the POST request
