@@ -51,6 +51,17 @@ INSTALLED_APPS = [
 SITE_ID = 1
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
+# MIDDLEWARE = [
+#     'django.middleware.security.SecurityMiddleware',
+#     'django.contrib.sessions.middleware.SessionMiddleware',
+#     'django.middleware.common.CommonMiddleware',
+#     'django.middleware.csrf.CsrfViewMiddleware',
+#     'django.contrib.auth.middleware.AuthenticationMiddleware',
+#     'django.contrib.messages.middleware.MessageMiddleware',
+#     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+# ]
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -59,7 +70,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+    # Add the following line for Django Allauth
+    'allauth.account.middleware.AccountMiddleware',
 ]
+
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 ROOT_URLCONF = 'vehicarehub.urls'
